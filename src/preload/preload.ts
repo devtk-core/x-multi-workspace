@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import type { Account, Action, Layout, Rect, Snapshot } from '../shared/model';
+import type { Account, Action, Language, Layout, Rect, Snapshot } from '../shared/model';
 
 const api = {
   snapshot: (): Promise<Snapshot> => ipcRenderer.invoke('snapshot'),
@@ -8,6 +8,7 @@ const api = {
   reorder: (ids: string[]) => ipcRenderer.invoke('account:reorder', ids),
   select: (id: string) => ipcRenderer.invoke('select', id),
   layout: (layout: Layout) => ipcRenderer.invoke('layout', layout),
+  language: (language: Language) => ipcRenderer.invoke('language', language),
   collapseSidebar: (collapsed: boolean) => ipcRenderer.invoke('sidebar', collapsed),
   setRects: (rects: Record<string, Rect>) => ipcRenderer.send('rects', rects),
   action: (id: string, action: Action) => ipcRenderer.invoke('action', id, action),

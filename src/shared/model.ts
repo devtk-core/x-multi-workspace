@@ -1,28 +1,30 @@
 export type Layout = 'single' | 'two' | 'four' | 'six' | 'ten' | 'tabs';
+export type Language = 'ja' | 'en';
 export type Account = { id: string; name: string; handle: string; color: string; order: number; zoom: number; lastUrl?: string };
-export type Settings = { accounts: Account[]; layout: Layout; selectedId: string | null; window: { x?: number; y?: number; width: number; height: number }; sidebarCollapsed: boolean };
+export type Settings = { accounts: Account[]; layout: Layout; language: Language; selectedId: string | null; window: { x?: number; y?: number; width: number; height: number }; sidebarCollapsed: boolean };
 export type ViewStatus = 'unloaded' | 'visible' | 'hidden' | 'suspended';
 export type Snapshot = { settings: Settings; statuses: Record<string, ViewStatus> };
 export type Action = 'home' | 'notifications' | 'profile' | 'compose' | 'reload' | 'back' | 'forward' | 'focus';
 export type Rect = { x: number; y: number; width: number; height: number };
 export const LAYOUT_COUNTS: Record<Layout, number> = { single: 1, two: 2, four: 4, six: 6, ten: 10, tabs: 1 };
-export const DEFAULT_SETTINGS: Settings = { accounts: [], layout: 'single', selectedId: null, window: { width: 1440, height: 900 }, sidebarCollapsed: false };
+export const DEFAULT_SETTINGS: Settings = { accounts: [], layout: 'single', language: 'ja', selectedId: null, window: { width: 1440, height: 900 }, sidebarCollapsed: false };
+export const languageFromLocale = (locale: string): Language => /^ja(?:-|$)/i.test(locale) ? 'ja' : 'en';
 export const isUuid = (value: unknown): value is string => typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
 export const isColor = (value: unknown): value is string => typeof value === 'string' && /^#[0-9a-f]{6}$/i.test(value);
-export function partitionFor(id: string): string { if (!isUuid(id)) throw new Error('アカウントIDが不正です'); return `persist:xmw-${id}`; }
+export function partitionFor(id: string): string { if (!isUuid(id)) throw new Error('INVALID_ID'); return `persist:xmw-${id}`; }
 export function validateAccount(input: unknown): Omit<Account, 'id' | 'order' | 'lastUrl'> {
-  if (!input || typeof input !== 'object') throw new Error('設定が不正です');
+  if (!input || typeof input !== 'object') throw new Error('INVALID_SETTINGS');
   const a = input as Record<string, unknown>;
   const name = typeof a.name === 'string' ? a.name.trim() : '';
   const handle = typeof a.handle === 'string' ? a.handle.trim().replace(/^@/, '') : '';
-  if (!name || name.length > 60) throw new Error('表示名は1～60文字で入力してください');
-  if (handle && !/^[A-Za-z0-9_]{1,15}$/.test(handle)) throw new Error('ユーザーIDは英数字と_の15文字以内で入力してください');
-  if (!isColor(a.color)) throw new Error('識別色が不正です');
-  if (typeof a.zoom !== 'number' || !Number.isFinite(a.zoom) || a.zoom < 0.5 || a.zoom > 2) throw new Error('ズームは50～200%にしてください');
+  if (!name || name.length > 60) throw new Error('INVALID_NAME');
+  if (handle && !/^[A-Za-z0-9_]{1,15}$/.test(handle)) throw new Error('INVALID_HANDLE');
+  if (!isColor(a.color)) throw new Error('INVALID_COLOR');
+  if (typeof a.zoom !== 'number' || !Number.isFinite(a.zoom) || a.zoom < 0.5 || a.zoom > 2) throw new Error('INVALID_ZOOM');
   return { name, handle, color: a.color, zoom: Math.round(a.zoom * 10) / 10 };
 }
-export function normalizeSettings(input: unknown): Settings {
-  if (!input || typeof input !== 'object') return structuredClone(DEFAULT_SETTINGS);
+export function normalizeSettings(input: unknown, fallbackLanguage: Language = 'ja'): Settings {
+  if (!input || typeof input !== 'object') return { ...structuredClone(DEFAULT_SETTINGS), language: fallbackLanguage };
   const raw = input as Partial<Settings>;
   const accounts: Account[] = [];
   if (Array.isArray(raw.accounts)) for (const item of raw.accounts.slice(0, 10)) {
@@ -36,7 +38,8 @@ export function normalizeSettings(input: unknown): Settings {
   const w = raw.window;
   const width = Number.isFinite(w?.width) ? Math.max(800, Math.min(4000, w!.width)) : 1440;
   const height = Number.isFinite(w?.height) ? Math.max(560, Math.min(3000, w!.height)) : 900;
-  return { accounts, layout, selectedId: accounts.some(a => a.id === raw.selectedId) ? raw.selectedId! : accounts[0]?.id ?? null,
+  const language: Language = raw.language === 'ja' || raw.language === 'en' ? raw.language : fallbackLanguage;
+  return { accounts, layout, language, selectedId: accounts.some(a => a.id === raw.selectedId) ? raw.selectedId! : accounts[0]?.id ?? null,
     window: { width, height, ...(Number.isFinite(w?.x) && Number.isFinite(w?.y) ? { x: w!.x, y: w!.y } : {}) }, sidebarCollapsed: raw.sidebarCollapsed === true };
 }
 export function safeXUrl(value: unknown): boolean {

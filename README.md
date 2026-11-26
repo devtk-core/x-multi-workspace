@@ -1,23 +1,36 @@
 # X Multi Workspace
 
-複数のXアカウントを一つのWindowsウィンドウで手動管理するElectronアプリです。各管理枠は独立した永続Chromiumセッションを持ち、X公式サイトを表示します。X APIや外部サーバーは使用しません。
+English | [日本語](README.ja.md)
 
-## 必要環境
+X Multi Workspace is a Windows desktop app for manually managing up to 10 X accounts in one window. Each account workspace displays the official X website in its own persistent Chromium session. The app does not use the X API or an external server.
+
+## Features
+
+- Single view, 2, 4, 6, or 10 panes, and tabs
+- Separate cookies and local storage for every workspace
+- Per-workspace name, optional X handle, color, order, and zoom
+- Home, notifications, profile, compose, reload, back, forward, and maximize controls
+- Manual suspend and resume, with sessions retained
+- English and Japanese app UI; the initial language follows the Windows locale and can be changed with the `EN` / `日本語` button
+
+The language switch applies to the app's controls. The official X website uses its own language settings. Switching the app language does not reload X views or sign you out.
+
+## Requirements
 
 - Windows 11 x64
-- Node.js 22 LTS以降、npm 10以降
-- インターネット接続（初回の依存パッケージ取得とXへのアクセス時）
+- Node.js 22 LTS or later and npm 10 or later for development
+- Internet access for installing dependencies and using X
 
-## 開発
+## Development
 
 ```powershell
 npm install
 npm run dev
 ```
 
-`npm run dev` はVite、TypeScript監視、Electronを起動します。開発中は `http://127.0.0.1:5173` をローカルUIとして読み込みます。
+The development command starts Vite, the TypeScript watcher, and Electron. It serves the local app UI at `http://127.0.0.1:5173`.
 
-## 確認とWindowsビルド
+## Checks and Windows builds
 
 ```powershell
 npm run typecheck
@@ -25,40 +38,42 @@ npm test
 npm run dist:win
 ```
 
-成功すると `outputs/` にNSISインストーラーとポータブル版exeが作成されます。署名証明書は同梱していないため、配布時にはコード署名を設定してください。
+The build produces an NSIS installer and a portable executable in `outputs/`. They are unsigned; configure code signing before distributing them broadly.
 
-## 使い方
+## Getting started
 
-1. 管理枠を追加し、名前・任意のXユーザーID・識別色・ズームを指定します。
-2. 表示されたX公式画面で手動ログインします。管理枠ごとに異なるアカウントでログインできます。
-3. 上部で1/2/4/6/10分割またはタブ表示を選びます。分割表示では選択中の管理枠を含むページを表示します。サイドバーの管理枠を選ぶと該当ページへ切り替わります。
-4. 各画面のボタンからホーム、通知、プロフィール、投稿画面、再読み込み、戻る、進む、拡大表示を操作できます。
-5. 設定メニューから並べ替え、休止・復帰、削除ができます。
+1. Add a workspace and set its name, optional X handle, color, and zoom.
+2. Sign in manually in the official X page shown in that workspace. Use a different account in each workspace if needed.
+3. Choose a layout at the top. In a split layout, selecting a workspace in the sidebar moves to the page containing it.
+4. Use each pane's controls to navigate or open the compose page. Write posts, paste text, and attach media manually in X.
+5. Open a workspace's settings to reorder, suspend, resume, or remove it.
 
-キーボード: `Ctrl+1`～`Ctrl+9`、`Ctrl+0` で管理枠選択、`Ctrl+R` で再読み込み、`Ctrl+Shift+P` で投稿画面、`Esc` で拡大解除。選択はサイドバーの順番に対応します。
+Shortcuts: `Ctrl+1`–`Ctrl+9` select workspaces 1–9, `Ctrl+0` selects workspace 10, `Ctrl+R` reloads the selected view, `Ctrl+Shift+P` opens its compose page, and `Esc` leaves maximized view.
 
-## 保存とリソース管理
+## Storage and memory
 
-- メモリの参考値: 8枠を同時表示した環境では、アプリ全体で約1.4GBでした。単純換算で約175MB/枠ですが、この値にはアプリ共通プロセスも含まれます。X画面は1枠あたりおおむね100～200MBを目安とし、投稿の画像・動画や閲覧状況によって大きく変動します。必要量を保証する値ではありません。
-- 設定はElectronの `userData/settings.json` に保存します。ウィンドウ位置と大きさ、レイアウト、各管理枠の表示順・識別色・ズームも保存します。
-- 管理枠のセッションは `persist:xmw-<UUID>` に保存します。CookieやローカルストレージはElectronが管理します。アプリはパスワードや認証トークンを独自に読み取り・保存しません。
-- 非表示画面は初回表示まで読み込みません。一度表示した画面は切り替え時に保持します。手動休止ではWebContentsを閉じるため、未送信の投稿やフォーム入力が失われる場合があります。休止の確認を表示します。
-- 分割数を減らしても、一度開いた画面は閲覧状態を守るため保持され、メモリ使用量はすぐには下がりません。メモリを減らしたいときは、下書きがないことを確認してから管理枠を手動で休止してください。
-- 削除時はセッションデータも消すか確認します。削除する場合はElectronの `clearData()` と `clearCache()` を使用します。
+- Settings, including language, layout, window position, and workspace details, are saved locally in Electron's `userData/settings.json`.
+- Each workspace uses an Electron `persist:xmw-<UUID>` session. Electron manages its cookies and local storage. The app does not collect or save passwords or authentication tokens separately.
+- Hidden views load only when first shown. Once loaded, they stay alive when switching layouts to preserve the current page and drafts. Reducing the pane count therefore does not immediately reduce memory usage.
+- In one eight-pane test, the entire app used about 1.4 GB. An X view may use roughly 100–200 MB, but this varies widely with content and video. The eight-pane total includes shared app processes and is not a fixed per-pane requirement.
+- Manually suspending a workspace closes its WebContents while retaining the session. Unsaved posts or form input may be lost, so the app asks before suspending. Resume opens the last saved X URL.
+- When removing a workspace, the app asks whether to clear its session data as well.
 
-## セキュリティと既知の制約
+## Security and limitations
 
-- Xを表示する画面ではNode連携を無効化し、context isolation、sandbox、web securityを有効にしています。UIだけに限定したpreloadでIPCを公開し、送信元と入力を検証します。
-- X以外のリンクは既定の外部ブラウザで開きます。Xのポップアップは同じ管理枠内で開きます。外部認証プロバイダーを使うログインやポップアップ依存のX機能は動作しない可能性があります。
-- カメラ、マイク、画面共有などの権限は許可しません。画像・動画の添付はX画面のファイル選択から手動で行います。
-- 10分割は画面解像度が低いとXのモバイル向け表示になったり、ボタンが狭くなったりします。特に10画面同時表示ではChromiumのメモリ使用量が増えます。
-- Xの仕様変更により `/compose/post` などのURLが変更されると操作ボタンの調整が必要です。Xの利用制限、認証、CAPTCHAの回避機能はありません。
-- 実際のXへのログイン、セッション復元、投稿、貼り付け、添付操作はユーザーの受け入れテストが必要です。自動テストではX側の画面やアカウントを操作しません。
+- Remote X views disable Node integration and enable context isolation, sandboxing, and web security. IPC accepts input only from the local app UI and validates it.
+- Non-X links open in the system browser. X popups open in the same workspace. Sign-in through an external identity provider or X features that require a popup may not work.
+- Camera, microphone, and screen-sharing permissions are denied. Attach images or videos through X's own file picker.
+- Ten panes can become cramped at lower resolutions and increase Chromium memory use. X may switch to a mobile layout in narrow panes.
+- If X changes URLs such as `/compose/post`, the corresponding navigation button may need updating. The app does not bypass X limits, authentication, or CAPTCHAs, and does not automate posting or account actions.
+- Actual X sign-in, session persistence after sign-in, posting, paste, and attachments require user acceptance testing. Automated tests do not operate X accounts.
 
-## 受け入れテスト例
+## Suggested acceptance checks
 
-1. 二つの管理枠で異なるXアカウントにログインし、相互に混在しないことを確認する。
-2. アプリを再起動して両方のログイン状態が続くことを確認する。
-3. 単一・分割・タブを切り替えて閲覧中ページと投稿下書きが保持されることを確認する。
-4. 各管理枠から個別に投稿画面を開き、手動でテキスト貼り付けと画像・動画添付を確認する。
-5. 休止・復帰、セッション削除を確認する。
+1. Sign in to different X accounts in two workspaces and confirm that they remain separate.
+2. Restart the app and confirm that both valid X sessions remain signed in.
+3. Switch among single, split, and tab layouts and confirm that current pages and drafts remain where possible.
+4. In each workspace, manually test posting, text paste, and image or video attachments.
+5. Test suspend, resume, and optional session deletion.
+
+See [README.ja.md](README.ja.md) for the Japanese guide.

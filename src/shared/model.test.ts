@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { normalizeSettings, partitionFor, safeXUrl, validateAccount, visibleIds, type Settings } from './model';
+import { languageFromLocale, normalizeSettings, partitionFor, safeXUrl, validateAccount, visibleIds, type Settings } from './model';
 const ids = Array.from({length:10},(_,i)=>`00000000-0000-4000-8000-${String(i).padStart(12,'0')}`);
-const settings:Settings = {accounts:ids.map((id,order)=>({id,order,name:`Account ${order}`,handle:`user_${order}`,color:'#33c2a5',zoom:1})),layout:'four',selectedId:ids[5],sidebarCollapsed:false,window:{width:1440,height:900}};
+const settings:Settings = {accounts:ids.map((id,order)=>({id,order,name:`Account ${order}`,handle:`user_${order}`,color:'#33c2a5',zoom:1})),layout:'four',language:'ja',selectedId:ids[5],sidebarCollapsed:false,window:{width:1440,height:900}};
 describe('account model',()=>{
   it('rejects invalid names, handles and zoom',()=>{
     expect(()=>validateAccount({name:'',handle:'',color:'#fff000',zoom:1})).toThrow();
@@ -26,5 +26,12 @@ describe('account model',()=>{
     expect(visibleIds(settings)).toEqual(ids.slice(4,8));
     expect(visibleIds({...settings,layout:'single'})).toEqual([ids[5]]);
     expect(visibleIds({...settings,layout:'ten'})).toEqual(ids);
+  });
+  it('uses the system locale for new or older settings and keeps a chosen language',()=>{
+    expect(languageFromLocale('ja-JP')).toBe('ja');
+    expect(languageFromLocale('en-US')).toBe('en');
+    expect(normalizeSettings(null, 'en').language).toBe('en');
+    expect(normalizeSettings({...settings, language: undefined}, 'en').language).toBe('en');
+    expect(normalizeSettings(settings, 'en').language).toBe('ja');
   });
 });

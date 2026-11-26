@@ -2,7 +2,7 @@ import { app, BrowserWindow, ipcMain, session, shell, WebContentsView, type Rect
 import { randomUUID } from 'node:crypto';
 import { readFileSync, writeFileSync, renameSync } from 'node:fs';
 import { join } from 'node:path';
-import { DEFAULT_SETTINGS, isUuid, normalizeSettings, partitionFor, safeXUrl, validateAccount, visibleIds, type Account, type Action, type Layout, type Rect, type Settings, type Snapshot, type ViewStatus } from '../shared/model';
+import { isUuid, languageFromLocale, normalizeSettings, partitionFor, safeXUrl, validateAccount, visibleIds, type Account, type Action, type Language, type Layout, type Rect, type Settings, type Snapshot, type ViewStatus } from '../shared/model';
 
 const dev = !app.isPackaged;
 let win: BrowserWindow;
@@ -36,13 +36,13 @@ function status(id: string): ViewStatus {
 function snapshot(): Snapshot { return { settings, statuses: Object.fromEntries(settings.accounts.map(a => [a.id, status(a.id)])) }; }
 function broadcast() { if (win && !win.isDestroyed()) win.webContents.send('state', snapshot()); }
 function accountFor(id: unknown): Account {
-  if (!isUuid(id)) throw new Error('アカウントIDが不正です');
+  if (!isUuid(id)) throw new Error('INVALID_ID');
   const account = settings.accounts.find(a => a.id === id);
-  if (!account) throw new Error('アカウントが見つかりません');
+  if (!account) throw new Error('ACCOUNT_NOT_FOUND');
   return account;
 }
 function guard(event: Electron.IpcMainEvent | Electron.IpcMainInvokeEvent) {
-  if (!win || event.sender !== win.webContents || event.senderFrame !== win.webContents.mainFrame) throw new Error('IPCの送信元が不正です');
+  if (!win || event.sender !== win.webContents || event.senderFrame !== win.webContents.mainFrame) throw new Error('INVALID_SENDER');
 }
 function cleanupView(id: string) {
   const view = views.get(id);
@@ -119,8 +119,8 @@ function handleShortcut(event: Electron.Event, input: Electron.Input) {
 }
 async function runAction(id: string, action: Action) {
   const account = accountFor(id);
-  if (!allowedActions.includes(action)) throw new Error('操作が不正です');
-  if (suspended.has(id)) throw new Error('休止中の画面を復帰してください');
+  if (!allowedActions.includes(action)) throw new Error('INVALID_ACTION');
+  if (suspended.has(id)) throw new Error('SUSPENDED');
   const view = views.get(id);
   if (!view) return;
   const wc = view.webContents;
@@ -144,7 +144,7 @@ function installIpc() {
       Object.assign(account, valid);
       views.get(id)?.webContents.setZoomFactor(valid.zoom);
     } else {
-      if (settings.accounts.length >= 10) throw new Error('管理枠は最大10個です');
+      if (settings.accounts.length >= 10) throw new Error('ACCOUNT_LIMIT');
       const account: Account = { ...valid, id: randomUUID(), order: settings.accounts.length };
       settings.accounts.push(account);
       settings.selectedId = account.id;
@@ -153,7 +153,7 @@ function installIpc() {
   });
   ipcMain.handle('account:delete', async (e, id: unknown, clearSession: unknown) => {
     guard(e); accountFor(id);
-    if (typeof clearSession !== 'boolean') throw new Error('削除指定が不正です');
+    if (typeof clearSession !== 'boolean') throw new Error('INVALID_DELETE');
     cleanupView(id as string);
     if (clearSession) {
       const ses = session.fromPartition(partitionFor(id as string));
@@ -168,12 +168,13 @@ function installIpc() {
   });
   ipcMain.handle('account:reorder', (e, ids: unknown) => {
     guard(e);
-    if (!Array.isArray(ids) || ids.length !== settings.accounts.length || ids.some(id => !isUuid(id)) || new Set(ids).size !== ids.length || ids.some(id => !settings.accounts.some(a => a.id === id))) throw new Error('並び順が不正です');
+    if (!Array.isArray(ids) || ids.length !== settings.accounts.length || ids.some(id => !isUuid(id)) || new Set(ids).size !== ids.length || ids.some(id => !settings.accounts.some(a => a.id === id))) throw new Error('INVALID_ORDER');
     settings.accounts.forEach(a => a.order = ids.indexOf(a.id)); save(); reconcile(); return snapshot();
   });
   ipcMain.handle('select', (e, id: unknown) => { guard(e); accountFor(id); settings.selectedId = id as string; save(); reconcile(); return snapshot(); });
-  ipcMain.handle('layout', (e, layout: unknown) => { guard(e); if (!['single','two','four','six','ten','tabs'].includes(layout as string)) throw new Error('表示形式が不正です'); settings.layout = layout as Layout; save(); reconcile(); return snapshot(); });
-  ipcMain.handle('sidebar', (e, value: unknown) => { guard(e); if (typeof value !== 'boolean') throw new Error('設定が不正です'); settings.sidebarCollapsed = value; save(); broadcast(); return snapshot(); });
+  ipcMain.handle('layout', (e, layout: unknown) => { guard(e); if (!['single','two','four','six','ten','tabs'].includes(layout as string)) throw new Error('INVALID_LAYOUT'); settings.layout = layout as Layout; save(); reconcile(); return snapshot(); });
+  ipcMain.handle('language', (e, language: unknown) => { guard(e); if (language !== 'ja' && language !== 'en') throw new Error('INVALID_LANGUAGE'); settings.language = language as Language; save(); broadcast(); return snapshot(); });
+  ipcMain.handle('sidebar', (e, value: unknown) => { guard(e); if (typeof value !== 'boolean') throw new Error('INVALID_SETTINGS'); settings.sidebarCollapsed = value; save(); broadcast(); return snapshot(); });
   ipcMain.on('rects', (e, payload: unknown) => {
     guard(e);
     if (!payload || typeof payload !== 'object' || Array.isArray(payload)) return;
@@ -188,7 +189,7 @@ function installIpc() {
     }
     reconcile();
   });
-  ipcMain.handle('action', async (e, id: unknown, action: unknown) => { guard(e); accountFor(id); if (!allowedActions.includes(action as Action)) throw new Error('操作が不正です'); await runAction(id as string, action as Action); });
+  ipcMain.handle('action', async (e, id: unknown, action: unknown) => { guard(e); accountFor(id); if (!allowedActions.includes(action as Action)) throw new Error('INVALID_ACTION'); await runAction(id as string, action as Action); });
   ipcMain.handle('suspend', (e, id: unknown) => { guard(e); accountFor(id); cleanupView(id as string); suspended.add(id as string); broadcast(); return snapshot(); });
   ipcMain.handle('resume', (e, id: unknown) => { guard(e); accountFor(id); suspended.delete(id as string); reconcile(); return snapshot(); });
 }
@@ -204,7 +205,8 @@ function createWindow() {
 }
 app.whenReady().then(() => {
   settingsPath = join(app.getPath('userData'), 'settings.json');
-  try { settings = normalizeSettings(JSON.parse(readFileSync(settingsPath, 'utf8'))); } catch { settings = structuredClone(DEFAULT_SETTINGS); }
+  const systemLanguage = languageFromLocale(app.getLocale());
+  try { settings = normalizeSettings(JSON.parse(readFileSync(settingsPath, 'utf8')), systemLanguage); } catch { settings = normalizeSettings(null, systemLanguage); }
   installIpc(); createWindow();
   app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow(); });
 });
