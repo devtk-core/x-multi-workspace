@@ -1,8 +1,16 @@
 # X Multi Workspace
 
+<img src="build/icon.svg" alt="X Multi Workspace app icon" width="96" height="96">
+
 English | [日本語](README.ja.md)
 
 X Multi Workspace is a Windows desktop app for manually managing up to 10 X accounts in one window. Each account workspace displays the official X website in its own persistent Chromium session. The app does not use the X API or an external server.
+
+[Download the Windows installer or portable version](https://github.com/devtk-core/x-multi-workspace/releases/latest)
+
+![Illustrative four-pane preview of X Multi Workspace](docs/images/workspace-preview.png)
+
+*Illustrative preview using fictional accounts and posts. The app displays the official X website; your X content will differ.*
 
 ## Features
 

@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="820" viewBox="0 0 1400 820" role="img" aria-label="Illustrative X Multi Workspace four pane interface with fictional demo content">
+  <defs>
+    <linearGradient id="media" x2="1" y2="1">
+      <stop stop-color="#d8e9f8"/>
+      <stop offset="1" stop-color="#b9d5e8"/>
+    </linearGradient>
+    <symbol id="pane" viewBox="0 0 557 319">
+      <rect width="557" height="319" rx="8" fill="#f8fafc"/>
+      <rect width="557" height="30" rx="8" fill="#111722"/>
+      <rect y="23" width="557" height="7" fill="#111722"/>
+      <circle cx="14" cy="15" r="4" fill="currentColor"/>
+      <text x="469" y="19" font-family="Segoe UI,Arial,sans-serif" font-size="14" fill="#9bacc0">←  →  ⌂  ⋯</text>
+      <rect y="30" width="52" height="289" fill="#fff"/>
+      <path d="M14 48h20M17 45l14 18M32 45 18 63" stroke="#0b111a" stroke-width="2.5" fill="none"/>
+      <path d="M17 85h18v15H17zM16 85l10-9 10 9" stroke="#0b111a" stroke-width="2" fill="none" stroke-linejoin="round"/>
+      <circle cx="26" cy="129" r="9" stroke="#0b111a" stroke-width="2" fill="none"/>
+      <path d="m32 135 7 7" stroke="#0b111a" stroke-width="2"/>
+      <path d="M19 170a7 7 0 0 1 14 0v8H19z" stroke="#0b111a" stroke-width="2" fill="none"/>
+      <circle cx="26" cy="208" r="9" stroke="#0b111a" stroke-width="2" fill="none"/>
+      <path d="M18 245h16v16H18z" stroke="#0b111a" stroke-width="2" fill="none"/>
+      <circle cx="26" cy="292" r="17" fill="#0b111a"/>
+      <path d="M20 298l13-13m-11 2h10v10" stroke="#fff" stroke-width="2" fill="none"/>
+      <rect x="52" y="30" width="505" height="40" fill="#fff"/>
+      <text x="105" y="54" font-family="Segoe UI,Arial,sans-serif" font-size="13" font-weight="700" fill="#101926">For you</text>
+      <text x="281" y="54" font-family="Segoe UI,Arial,sans-serif" font-size="13" fill="#69778b">Following</text>
+      <rect x="101" y="66" width="58" height="3" rx="2" fill="#5b98ec"/>
+      <path d="M52 70h505M52 130h505M52 256h505" stroke="#e5eaf0"/>
+      <circle cx="79" cy="94" r="15" fill="#d5e4ed"/>
+      <text x="103" y="97" font-family="Segoe UI,Arial,sans-serif" font-size="13" fill="#8794a4">What is happening?</text>
+      <circle cx="78" cy="152" r="14" fill="#b8d8cd"/>
+      <text x="102" y="148" font-family="Segoe UI,Arial,sans-serif" font-size="11" font-weight="700" fill="#111722">Demo account</text>
+      <text x="190" y="148" font-family="Segoe UI,Arial,sans-serif" font-size="10" fill="#8190a1">@sample · 2h</text>
+      <text x="102" y="170" font-family="Segoe UI,Arial,sans-serif" font-size="12" fill="#263445">Four workspaces, one window.</text>
+      <text x="102" y="188" font-family="Segoe UI,Arial,sans-serif" font-size="12" fill="#263445">Each session stays separate.</text>
+      <rect x="102" y="199" width="326" height="44" rx="7" fill="url(#media)"/>
+      <circle cx="78" cy="278" r="14" fill="#c4d5ef"/>
+      <text x="102" y="275" font-family="Segoe UI,Arial,sans-serif" font-size="11" font-weight="700" fill="#111722">Another demo account</text>
+      <text x="102" y="294" font-family="Segoe UI,Arial,sans-serif" font-size="12" fill="#263445">Browse and post manually in X.</text>
+      <path d="M52 30v289" stroke="#e5eaf0"/>
+    </symbol>
+  </defs>
+  <rect width="1400" height="820" fill="#080c13"/>
+  <rect x="10" y="10" width="1380" height="800" rx="12" fill="#0a0d14" stroke="#33445a" stroke-width="2"/>
+  <rect x="10" y="10" width="1380" height="32" rx="12" fill="#1b2430"/>
+  <rect x="10" y="31" width="1380" height="11" fill="#1b2430"/>
+  <text x="27" y="32" font-family="Segoe UI,Arial,sans-serif" font-size="13" fill="#dce6ef">X Multi Workspace</text>
+  <circle cx="1352" cy="26" r="6" fill="#9aa8b8"/>
+  <rect x="10" y="42" width="222" height="738" fill="#111722"/>
+  <path d="M232 42v738" stroke="#2a3748"/>
+  <text x="28" y="81" font-family="Segoe UI,Arial,sans-serif" font-size="30" font-weight="800" fill="#f5f8fe">X</text>
+  <text x="66" y="72" font-family="Segoe UI,Arial,sans-serif" font-size="15" font-weight="700" fill="#f5f8fe">Multi Workspace</text>
+  <text x="66" y="89" font-family="Segoe UI,Arial,sans-serif" font-size="9" letter-spacing="2" fill="#8092a7">ACCOUNT CONTROL</text>
+  <path d="M10 108h222" stroke="#2a3748"/>
+  <text x="28" y="146" font-family="Segoe UI,Arial,sans-serif" font-size="12" font-weight="700" fill="#9daec0">Accounts 4/10</text>
+  <rect x="27" y="163" width="187" height="52" rx="7" fill="#213048" stroke="#4d6486"/>
+  <rect x="27" y="224" width="187" height="52" rx="7" fill="#111722"/>
+  <rect x="27" y="285" width="187" height="52" rx="7" fill="#111722"/>
+  <rect x="27" y="346" width="187" height="52" rx="7" fill="#111722"/>
+  <rect x="35" y="172" width="33" height="33" rx="7" fill="#63c8a2"/>
+  <rect x="35" y="233" width="33" height="33" rx="7" fill="#68a6f5"/>
+  <rect x="35" y="294" width="33" height="33" rx="7" fill="#c87fd0"/>
+  <rect x="35" y="355" width="33" height="33" rx="7" fill="#ed9c76"/>
+  <g font-family="Segoe UI,Arial,sans-serif" font-size="12" font-weight="700" fill="#e8eef7">
+    <text x="78" y="185">Personal</text><text x="78" y="246">Research</text><text x="78" y="307">Community</text><text x="78" y="368">Projects</text>
+  </g>
+  <g font-family="Segoe UI,Arial,sans-serif" font-size="10" fill="#86bda9">
+    <text x="78" y="201">● Visible</text><text x="78" y="262">● Visible</text><text x="78" y="323">● Visible</text><text x="78" y="384">● Visible</text>
+  </g>
+  <text x="254" y="78" font-family="Segoe UI,Arial,sans-serif" font-size="16" font-weight="700" fill="#eef3fa">Workspace</text>
+  <text x="254" y="96" font-family="Segoe UI,Arial,sans-serif" font-size="11" fill="#8fa0b4">4 accounts</text>
+  <rect x="1103" y="58" width="269" height="37" rx="8" fill="#1a2231" stroke="#34445b"/>
+  <g font-family="Segoe UI,Arial,sans-serif" font-size="11" fill="#95a4b9">
+    <text x="1117" y="82">Single</text><text x="1172" y="82">2 panes</text><text x="1281" y="82">6 panes</text><text x="1333" y="82">Tabs</text>
+  </g>
+  <rect x="1225" y="63" width="51" height="27" rx="5" fill="#3a527a"/>
+  <text x="1232" y="82" font-family="Segoe UI,Arial,sans-serif" font-size="11" font-weight="700" fill="#fff">4 panes</text>
+  <g transform="translate(243 112)" color="#65c8a3"><use href="#pane" width="557" height="319"/><text x="26" y="19" font-family="Segoe UI,Arial,sans-serif" font-size="12" font-weight="700" fill="#f2f5fa">Personal</text></g>
+  <g transform="translate(811 112)" color="#67a7f5"><use href="#pane" width="557" height="319"/><text x="26" y="19" font-family="Segoe UI,Arial,sans-serif" font-size="12" font-weight="700" fill="#f2f5fa">Research</text></g>
+  <g transform="translate(243 441)" color="#c87fd0"><use href="#pane" width="557" height="319"/><text x="26" y="19" font-family="Segoe UI,Arial,sans-serif" font-size="12" font-weight="700" fill="#f2f5fa">Community</text></g>
+  <g transform="translate(811 441)" color="#ed9c76"><use href="#pane" width="557" height="319"/><text x="26" y="19" font-family="Segoe UI,Arial,sans-serif" font-size="12" font-weight="700" fill="#f2f5fa">Projects</text></g>
+  <rect x="10" y="780" width="1380" height="30" rx="12" fill="#111722"/>
+  <text x="28" y="800" font-family="Segoe UI,Arial,sans-serif" font-size="11" fill="#8c9bac">Illustrative preview · Fictional accounts and posts · X content is shown through the official website in the app</text>
+</svg>
