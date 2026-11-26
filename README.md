@@ -66,6 +66,8 @@ Shortcuts: `Ctrl+1`–`Ctrl+9` select workspaces 1–9, `Ctrl+0` selects workspa
 - Remote X views disable Node integration and enable context isolation, sandboxing, and web security. IPC accepts input only from the local app UI and validates it.
 - Non-X links open in the system browser. X popups open in the same workspace. Sign-in through an external identity provider or X features that require a popup may not work.
 - Camera, microphone, and screen-sharing permissions are denied. Attach images or videos through X's own file picker.
+- X views restrict WebRTC to proxied UDP or TCP to reduce Windows Firewall inbound-access prompts from Chromium's local UDP listeners. Peer-to-peer features such as Spaces may be limited. This does not guarantee that Windows will never show a firewall prompt; test a fresh Windows profile before public distribution.
+- The portable executable extracts to a temporary folder on each launch. A new executable path can cause Windows to treat it as a new app for firewall rules. The app does not require inbound network access for normal X browsing and posting.
 - Ten panes can become cramped at lower resolutions and increase Chromium memory use. X may switch to a mobile layout in narrow panes.
 - If X changes URLs such as `/compose/post`, the corresponding navigation button may need updating. The app does not bypass X limits, authentication, or CAPTCHAs, and does not automate posting or account actions.
 - Actual X sign-in, session persistence after sign-in, posting, paste, and attachments require user acceptance testing. Automated tests do not operate X accounts.

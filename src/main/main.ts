@@ -62,6 +62,9 @@ function createView(account: Account): WebContentsView {
   const view = new WebContentsView({ webPreferences: { partition: partitionFor(account.id), nodeIntegration: false, contextIsolation: true, sandbox: true, webSecurity: true, javascript: true, webviewTag: false } });
   const wc = view.webContents;
   wc.setZoomFactor(account.zoom);
+  // X's feed can initialize WebRTC even though this app does not use peer-to-peer features.
+  // Avoid local UDP listeners that can trigger a Windows inbound firewall prompt.
+  wc.setWebRTCIPHandlingPolicy('disable_non_proxied_udp');
   const ses = wc.session;
   ses.setPermissionRequestHandler((_wc, _permission, callback) => callback(false));
   wc.setWindowOpenHandler(({ url }) => {
