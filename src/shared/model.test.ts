@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { languageFromLocale, normalizeSettings, partitionFor, safeXUrl, validateAccount, visibleIds, type Settings } from './model';
+import { languageFromLocale, normalizeSettings, partitionFor, safeExternalUrl, safeXUrl, validateAccount, visibleIds, type Settings } from './model';
 const ids = Array.from({length:10},(_,i)=>`00000000-0000-4000-8000-${String(i).padStart(12,'0')}`);
 const settings:Settings = {accounts:ids.map((id,order)=>({id,order,name:`Account ${order}`,handle:`user_${order}`,color:'#33c2a5',zoom:1})),layout:'four',language:'ja',selectedId:ids[5],sidebarCollapsed:false,window:{width:1440,height:900}};
 describe('account model',()=>{
@@ -15,12 +15,32 @@ describe('account model',()=>{
   });
   it('keeps external and insecure URLs out of account views',()=>{
     expect(safeXUrl('https://x.com/home')).toBe(true);
+    expect(safeXUrl('https://twitter.com/home')).toBe(true);
+    expect(safeXUrl('https://x.com:443/home')).toBe(true);
     expect(safeXUrl('https://x.com.evil.example/home')).toBe(false);
     expect(safeXUrl('http://x.com/home')).toBe(false);
+    expect(safeXUrl('https://user@x.com/home')).toBe(false);
+    expect(safeXUrl('https://x.com:8443/home')).toBe(false);
+    expect(safeXUrl('https://x.com@evil.example/home')).toBe(false);
+    expect(safeXUrl('javascript:alert(1)')).toBe(false);
+    expect(safeXUrl('file:///C:/Users/test/settings.json')).toBe(false);
+    expect(safeExternalUrl('https://example.com/article')).toBe(true);
+    expect(safeExternalUrl('https://user@example.com/article')).toBe(false);
+    expect(safeExternalUrl('http://example.com/article')).toBe(false);
+    expect(safeExternalUrl('file:///C:/Windows/system.ini')).toBe(false);
   });
   it('gives each account a separate persistent partition',()=>{
     expect(partitionFor(ids[0])).toBe(`persist:xmw-${ids[0]}`);
     expect(partitionFor(ids[0])).not.toBe(partitionFor(ids[1]));
+    const restored = normalizeSettings({
+      ...settings,
+      accounts: [
+        {...settings.accounts[0], lastUrl: 'https://x.com/home'},
+        {...settings.accounts[1], lastUrl: 'https://x.com:8443/home'}
+      ]
+    });
+    expect(restored.accounts[0].lastUrl).toBe('https://x.com/home');
+    expect(restored.accounts[1].lastUrl).toBeUndefined();
   });
   it('paginates split layouts around the selected account',()=>{
     expect(visibleIds(settings)).toEqual(ids.slice(4,8));

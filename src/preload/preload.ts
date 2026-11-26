@@ -1,8 +1,11 @@
 import { contextBridge, ipcRenderer } from 'electron';
 import type { Account, Action, Language, Layout, Rect, Snapshot } from '../shared/model';
+import type { UpdateCheck } from '../shared/updates';
 
 const api = {
   snapshot: (): Promise<Snapshot> => ipcRenderer.invoke('snapshot'),
+  checkUpdates: (): Promise<UpdateCheck> => ipcRenderer.invoke('updates:check'),
+  openReleasePage: (): Promise<void> => ipcRenderer.invoke('updates:open'),
   saveAccount: (account: Partial<Account>) => ipcRenderer.invoke('account:save', account),
   deleteAccount: (id: string, clearSession: boolean) => ipcRenderer.invoke('account:delete', id, clearSession),
   reorder: (ids: string[]) => ipcRenderer.invoke('account:reorder', ids),
