@@ -1,16 +1,15 @@
-# X Multi Workspace v1.1.4
+# Xnarabi v1.2.0
 
-Windows 11 x64向けのインストーラー版・ポータブル版です。既存の管理枠と有効なXログインセッションは、同じWindowsユーザーで更新する場合に引き継がれます。
+旧名「X Multi Workspace」から「Xnarabi（エックスナラビ）」になりました。個人開発の無料Windowsアプリです。X公式サイトの画面を、最大10アカウント分ひとつのウィンドウに並べられます。XやX Corp.の公式製品ではありません。
 
-## 主な変更
+## 変更
 
-- サイドバーをドラッグして管理枠を並べ替え、画面上部のバーをドラッグして表示位置を交換できます。順序は再起動後も保持されます。
-- プロフィール操作を人物アイコンに変更。幅に余裕がある画面では文字も表示します。
-- 「更新を確認」を追加。操作したときだけGitHub Releasesを確認し、新版があれば配布ページを開けます。自動インストールは行いません。
-- 画面遷移、IPC、権限、Electronのパッケージ設定を見直し、CIに依存関係監査と秘密情報スキャンを追加しました。
+- アプリ名、ロゴ、Windowsアイコン、インストーラーとポータブル版のファイル名を変更しました。
+- リポジトリを `devtk-core/xnarabi` に改名し、アプリの更新確認と配布ページのURLを更新しました。
+- 旧版の設定とログインセッションを引き継ぐため、保存先と管理枠のセッション識別子、NSISのアプリ識別子は維持しました。
 
-投稿、画像・動画の添付、ログインはX公式サイト上で手動操作します。X APIは使用しません。exeは未署名です。ダウンロード後は `SHA256SUMS.txt` でファイルを照合できます。
+旧版v1.1.4では、リポジトリ改名後にアプリ内の更新確認が失敗します。このReleasesページから手動でダウンロードしてください。インストーラー版は旧版の上にインストールしてください。配布exeは未署名です。`SHA256SUMS.txt` でダウンロードしたファイルを照合できます。
 
 ---
 
-Windows 11 x64 installer and portable builds. Workspace order now supports drag and drop and persists across restarts. The Profile action has a clearer icon and text where space allows. Check for updates contacts GitHub Releases only when requested and opens the download page; it does not install updates automatically. Navigation, IPC, permissions, and packaging were hardened. Sign-in and posting stay on the official X website. The executables are unsigned; verify them with `SHA256SUMS.txt`.
+X Multi Workspace is now Xnarabi, a free, independently developed Windows app for placing up to 10 official X website views side by side. It is not affiliated with or endorsed by X or X Corp. The app name, icon, installer and portable filenames, and update links have changed. The legacy data directory, workspace session partitions, and NSIS app ID remain unchanged to preserve existing settings and sign-ins. The v1.1.4 update check fails after the repository rename; download this release manually. The executables are unsigned; verify them with `SHA256SUMS.txt`.

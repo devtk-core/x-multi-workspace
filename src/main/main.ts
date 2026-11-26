@@ -1,13 +1,21 @@
 import { app, BrowserWindow, ipcMain, net, session, shell, WebContentsView, type Rectangle } from 'electron';
 import { randomUUID } from 'node:crypto';
-import { readFileSync, writeFileSync, renameSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync, renameSync } from 'node:fs';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { isUuid, languageFromLocale, normalizeSettings, partitionFor, safeExternalUrl, safeXUrl, validateAccount, visibleIds, type Account, type Action, type Language, type Layout, type Rect, type Settings, type Snapshot, type ViewStatus } from '../shared/model';
 import { isTrustedUiUrl, xNavigationDecision } from './security';
 import { updateFromRelease, type UpdateCheck } from '../shared/updates';
+import { LEGACY_USER_DATA_DIRECTORY } from '../shared/identity';
 
 const dev = !app.isPackaged;
+if (process.platform === 'win32') app.setAppUserModelId('local.xmultiworkspace.app');
+// The old package name was also Electron's userData folder. Preserve it for both
+// installed and portable users before Chromium initializes its persistent sessions.
+const legacyUserDataPath = join(app.getPath('appData'), LEGACY_USER_DATA_DIRECTORY);
+mkdirSync(legacyUserDataPath, { recursive: true });
+app.setPath('userData', legacyUserDataPath);
+app.setPath('sessionData', legacyUserDataPath);
 // X can initialize WebRTC on normal pages. Chromium's mDNS responder can open
 // an inbound port and cause a Windows Firewall prompt on first launch.
 // Keep the IP policy restrictive before disabling mDNS IP masking globally.
@@ -21,8 +29,8 @@ const views = new Map<string, WebContentsView>();
 const suspended = new Set<string>();
 const rects = new Map<string, Rectangle>();
 const allowedActions: Action[] = ['home','notifications','profile','compose','reload','back','forward','focus'];
-const RELEASE_API = 'https://api.github.com/repos/devtk-core/x-multi-workspace/releases/latest';
-const RELEASE_PAGE = 'https://github.com/devtk-core/x-multi-workspace/releases/latest';
+const RELEASE_API = 'https://api.github.com/repos/devtk-core/xnarabi/releases/latest';
+const RELEASE_PAGE = 'https://github.com/devtk-core/xnarabi/releases/latest';
 let saveTimer: NodeJS.Timeout | undefined;
 
 async function checkUpdates(): Promise<UpdateCheck> {
@@ -238,7 +246,7 @@ function installIpc() {
 }
 function createWindow() {
   trustedUiUrl = dev ? 'http://127.0.0.1:5173/' : pathToFileURL(join(__dirname, '../../renderer/index.html')).href;
-  win = new BrowserWindow({ ...settings.window, minWidth: 800, minHeight: 560, title: 'X Multi Workspace', backgroundColor: '#0a0d14', autoHideMenuBar: true,
+  win = new BrowserWindow({ ...settings.window, minWidth: 800, minHeight: 560, title: 'Xnarabi', icon: dev ? join(app.getAppPath(), 'build/icon.ico') : join(process.resourcesPath, 'icon.ico'), backgroundColor: '#0a0d14', autoHideMenuBar: true,
     webPreferences: { preload: join(__dirname, '../preload/preload.js'), nodeIntegration: false, contextIsolation: true, sandbox: true, webSecurity: true } });
   win.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
   win.webContents.on('will-frame-navigate', event => {
