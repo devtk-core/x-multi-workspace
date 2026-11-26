@@ -10,6 +10,8 @@ I wanted to keep several X accounts side by side, so I made this free Windows ap
 
 [Download the installer or portable app](https://github.com/devtk-core/xnarabi/releases/latest) · Windows 11 x64
 
+[User manual in Japanese (Dennou Tech)](https://www.dennou.tech/software/xnarabi/manual/)
+
 ![Illustrative four-pane preview of Xnarabi](docs/images/workspace-preview.png)
 
 *Illustrative preview with fictional accounts and posts. Your workspaces show the official X website.*
