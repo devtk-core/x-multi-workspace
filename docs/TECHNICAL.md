@@ -12,7 +12,7 @@
 
 The app contacts the public Releases API for `devtk-core/xnarabi` only when you click Check for updates. It contains no GitHub authentication token and does not download or install updates automatically.
 
-After the repository rename, the v1.1.4 update checker may fail because it rejects redirects from the old API URL. Its button for opening GitHub Releases should follow the browser redirect, but this still needs checking on a user's PC. v1.2.0 contacts the new API URL directly. Users of older versions can open the [new Releases page](https://github.com/devtk-core/xnarabi/releases) manually.
+After the repository rename, the old v1.1.4 API URL returns HTTP 301. The v1.1.4 update checker rejects that redirect and fails. The old Releases page redirects to the new URL in a browser. v1.2.0 contacts the new API URL directly. Users of older versions can open the [new Releases page](https://github.com/devtk-core/xnarabi/releases) manually.
 
 ## Development
 
