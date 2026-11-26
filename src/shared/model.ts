@@ -58,7 +58,18 @@ export function swapAccountIds(ids: string[], source: string, target: string): s
 }
 export function safeXUrl(value: unknown): boolean {
   if (typeof value !== 'string') return false;
-  try { const u = new URL(value); return u.protocol === 'https:' && (u.hostname === 'x.com' || u.hostname === 'twitter.com' || u.hostname === 'mobile.twitter.com'); } catch { return false; }
+  try {
+    const u = new URL(value);
+    return u.protocol === 'https:' && !u.username && !u.password && !u.port &&
+      (u.hostname === 'x.com' || u.hostname === 'twitter.com' || u.hostname === 'mobile.twitter.com');
+  } catch { return false; }
+}
+export function safeExternalUrl(value: unknown): boolean {
+  if (typeof value !== 'string') return false;
+  try {
+    const u = new URL(value);
+    return u.protocol === 'https:' && !u.username && !u.password && !u.port && !safeXUrl(value);
+  } catch { return false; }
 }
 export function visibleIds(settings: Settings): string[] {
   const sorted = [...settings.accounts].sort((a,b) => a.order - b.order);

@@ -2,6 +2,7 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { LAYOUT_COUNTS, moveAccountId, swapAccountIds, visibleIds, type Account, type Action, type Language, type Layout, type Rect, type Snapshot } from '../shared/model';
 import { copy, errorText } from './i18n';
+import type { UpdateCheck } from '../shared/updates';
 import './style.css';
 
 const actionIcons: { id: Action; icon: string }[] = [
@@ -19,6 +20,8 @@ function App() {
   const [busy, setBusy] = useState(false);
   const [dropHint, setDropHint] = useState<{ id: string; where: 'before' | 'after' | 'swap' } | null>(null);
   const draggedId = useRef<string | null>(null);
+  const [update, setUpdate] = useState<UpdateCheck | null>(null);
+  const [checkingUpdate, setCheckingUpdate] = useState(false);
   const bodyRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const settings = snapshot?.settings;
   const language = settings?.language ?? 'ja';
@@ -103,6 +106,12 @@ function App() {
     if (!confirm(t.suspendSlot(account.name))) return;
     await call(() => window.workspace.suspend(account.id));
   }
+  async function checkUpdates() {
+    setCheckingUpdate(true);
+    try { setUpdate(await window.workspace.checkUpdates()); }
+    catch { setUpdate({ status: 'unavailable', currentVersion: '' }); }
+    finally { setCheckingUpdate(false); }
+  }
 
   if (!settings) return <div className="loading">{t.starting}</div>;
   const ordered = [...settings.accounts].sort((a,b) => a.order-b.order);
@@ -120,7 +129,8 @@ function App() {
       {!settings.sidebarCollapsed && <div className="sidebar-footer"><span>{t.shortcutSwitch}</span><span>{t.shortcutReload}</span></div>}
     </aside>
     <main className="main">
-      <header className="topbar"><div className="heading"><strong>{t.workspace}</strong><span>{ordered.length ? t.accountCount(ordered.length) : t.startByAdding}</span></div><div className="layouts">{(Object.keys(t.layouts) as Layout[]).map(l => <button key={l} className={settings.layout===l && !maximized ? 'active' : ''} onClick={() => void changeLayout(l)}>{t.layouts[l]}</button>)}</div><button className="language-toggle" title={t.languageSwitch} aria-label={t.languageSwitch} onClick={() => void call(() => window.workspace.language(language === 'ja' ? 'en' : 'ja'))}>{language === 'ja' ? 'EN' : '日本語'}</button>{maximized && <button className="restore" onClick={() => setMaximized(null)}>{t.restoreSplit}　Esc</button>}</header>
+      <header className="topbar"><div className="heading"><strong>{t.workspace}</strong><span>{ordered.length ? t.accountCount(ordered.length) : t.startByAdding}</span></div><div className="layouts">{(Object.keys(t.layouts) as Layout[]).map(l => <button key={l} className={settings.layout===l && !maximized ? 'active' : ''} onClick={() => void changeLayout(l)}>{t.layouts[l]}</button>)}</div><button className="update-button" title={t.checkUpdates} aria-label={t.checkUpdates} disabled={checkingUpdate} onClick={() => void checkUpdates()}>{checkingUpdate ? t.checkingUpdates : t.checkUpdates}</button><button className="language-toggle" title={t.languageSwitch} aria-label={t.languageSwitch} onClick={() => void call(() => window.workspace.language(language === 'ja' ? 'en' : 'ja'))}>{language === 'ja' ? 'EN' : '日本語'}</button>{maximized && <button className="restore" onClick={() => setMaximized(null)}>{t.restoreSplit}　Esc</button>}</header>
+      {update && <div className="update-notice" role="status"><span>{update.status === 'available' ? t.updateAvailable(update.latestVersion!) : update.status === 'current' ? t.upToDate(update.currentVersion) : t.updateUnavailable}</span>{update.status !== 'current' && <button onClick={() => void call(() => window.workspace.openReleasePage())}>{t.openReleasePage}</button>}<button className="update-dismiss" aria-label={t.dismissUpdate} title={t.dismissUpdate} onClick={() => setUpdate(null)}>×</button></div>}
       {error && <div className="error" role="alert">{error}<button onClick={() => setError('')}>×</button></div>}
       {ordered.length === 0 ? <div className="empty"><div className="empty-symbol">𝕏</div><h1>{t.emptyTitle}</h1><p>{t.emptyDescription}</p><button className="primary" onClick={() => setEditing('new')}>＋ {t.addSlot}</button></div> :
       <div className={`grid count-${count}`} style={{gridTemplateColumns:`repeat(${columns}, minmax(0, 1fr))`}}>{ids.map(id => {

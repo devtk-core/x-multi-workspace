@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - 'v*'
+  pull_request:
+    branches: [main]
   workflow_dispatch:
     inputs:
       tag:
@@ -12,19 +14,19 @@ on:
         type: string
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  release:
+  build:
     runs-on: windows-latest
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
           persist-credentials: false
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: '22'
           cache: npm
@@ -33,6 +35,7 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run dist:win -- --publish never
+      - run: npm run test:sessions
 
       - name: Generate SHA-256 checksums
         shell: pwsh
@@ -45,6 +48,33 @@ jobs:
           }
           $lines | Set-Content -LiteralPath outputs/SHA256SUMS.txt -Encoding ascii
 
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: github.event_name != 'pull_request'
+        with:
+          name: windows-release
+          path: |
+            outputs/X-Multi-Workspace-Portable-*.exe
+            outputs/X-Multi-Workspace-Setup-*.exe
+            outputs/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 1
+
+  release:
+    needs: build
+    if: github.event_name != 'pull_request'
+    runs-on: windows-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
+          persist-credentials: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: windows-release
+          path: outputs
       - name: Publish GitHub release
         shell: pwsh
         env:
@@ -59,4 +89,11 @@ jobs:
           $setup = "outputs/X-Multi-Workspace-Setup-$version-x64.exe"
           $assets = @($portable, $setup, 'outputs/SHA256SUMS.txt')
           foreach ($asset in $assets) { if (-not (Test-Path -LiteralPath $asset)) { throw "Missing asset: $asset" } }
+          $checksums = @(Get-Content -LiteralPath 'outputs/SHA256SUMS.txt')
+          foreach ($asset in @($portable, $setup)) {
+            $name = Split-Path -Leaf $asset
+            $line = $checksums | Where-Object { $_ -match "^[a-f0-9]{64}  $([regex]::Escape($name))$" } | Select-Object -First 1
+            $expected = if ($line) { $line.Substring(0, 64) } else { $null }
+            if (-not $expected -or (Get-FileHash -LiteralPath $asset -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) { throw "Checksum mismatch: $name" }
+          }
           gh release create $tag $assets --repo $env:GITHUB_REPOSITORY --title "X Multi Workspace $tag" --notes-file .github/RELEASE_NOTES.md --verify-tag
