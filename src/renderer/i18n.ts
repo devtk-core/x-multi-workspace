@@ -14,6 +14,7 @@ type Copy = {
   memoryNote: string; delete: string; cancel: string; save: string; saving: string;
   deleteSlot: (name: string) => string; clearSession: string; suspendSlot: (name: string) => string;
   accountCount: (count: number) => string; languageSwitch: string; genericError: string;
+  dragToReorder: string; dragToSwap: string;
   errors: Record<string, string>;
 };
 
@@ -33,7 +34,7 @@ export const copy: Record<Language, Copy> = {
     deleteSlot:name=>`「${name}」を管理枠から削除しますか？`,
     clearSession:'この管理枠のCookie・ローカルストレージなどのセッションデータも削除しますか？\n「キャンセル」を選ぶとデータを残して管理枠だけ削除します。',
     suspendSlot:name=>`「${name}」を休止しますか？編集中の投稿は失われる場合があります。`,
-    accountCount:count=>`${count} アカウント`, languageSwitch:'Englishに切り替え', genericError:'操作に失敗しました。もう一度お試しください。',
+    accountCount:count=>`${count} アカウント`, languageSwitch:'Englishに切り替え', genericError:'操作に失敗しました。もう一度お試しください。', dragToReorder:'ドラッグして並べ替え', dragToSwap:'ここをドラッグして画面を入れ替え',
     errors: {INVALID_SETTINGS:'設定が不正です',INVALID_ID:'アカウントIDが不正です',ACCOUNT_NOT_FOUND:'アカウントが見つかりません',INVALID_SENDER:'IPCの送信元が不正です',INVALID_ACTION:'操作が不正です',SUSPENDED:'休止中の画面を復帰してください',ACCOUNT_LIMIT:'管理枠は最大10個です',INVALID_DELETE:'削除指定が不正です',INVALID_ORDER:'並び順が不正です',INVALID_LAYOUT:'表示形式が不正です',INVALID_NAME:'表示名は1～60文字で入力してください',INVALID_HANDLE:'ユーザーIDは英数字と_の15文字以内で入力してください',INVALID_COLOR:'識別色が不正です',INVALID_ZOOM:'ズームは50～200%にしてください',INVALID_LANGUAGE:'言語設定が不正です'}
   },
   en: {
@@ -51,7 +52,7 @@ export const copy: Record<Language, Copy> = {
     deleteSlot:name=>`Remove “${name}” from the app?`,
     clearSession:'Also delete this workspace’s cookies and local storage?\nChoose Cancel to remove only the workspace and keep its session data.',
     suspendSlot:name=>`Suspend “${name}”? Any post you are editing may be lost.`,
-    accountCount:count=>`${count} ${count===1?'account':'accounts'}`, languageSwitch:'Switch to Japanese', genericError:'The action failed. Please try again.',
+    accountCount:count=>`${count} ${count===1?'account':'accounts'}`, languageSwitch:'Switch to Japanese', genericError:'The action failed. Please try again.', dragToReorder:'Drag to reorder', dragToSwap:'Drag here to swap screens',
     errors: {INVALID_SETTINGS:'Invalid settings',INVALID_ID:'Invalid account ID',ACCOUNT_NOT_FOUND:'Account not found',INVALID_SENDER:'Invalid IPC sender',INVALID_ACTION:'Invalid action',SUSPENDED:'Resume this workspace first',ACCOUNT_LIMIT:'You can add up to 10 workspaces',INVALID_DELETE:'Invalid deletion option',INVALID_ORDER:'Invalid account order',INVALID_LAYOUT:'Invalid layout',INVALID_NAME:'Enter a display name of 1–60 characters',INVALID_HANDLE:'The X handle must be up to 15 letters, numbers, or underscores',INVALID_COLOR:'Invalid color',INVALID_ZOOM:'Zoom must be between 50% and 200%',INVALID_LANGUAGE:'Invalid language'}
   }
 };

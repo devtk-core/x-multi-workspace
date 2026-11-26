@@ -18,6 +18,7 @@ Open multiple X screens side by side in a Windows desktop app. Each workspace sh
 
 - Keep up to **10 account workspaces** and view 1, 2, 4, 6, or 10 screens at once, or use tabs.
 - Give each workspace a name and color, then jump between them from the sidebar or with Ctrl+1–9 (Ctrl+0 for the tenth).
+- Drag sidebar items to reorder them, or drag one screen's top bar onto another to swap their positions. The order persists after restarting.
 - Open Home, Notifications, Profile, or Compose in any workspace. Post and attach media manually in X.
 - Maximize a screen when you need room; suspend a workspace when you want to free memory.
 - Use the app in English or Japanese. X's own language follows your X settings.
