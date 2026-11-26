@@ -1,16 +1,6 @@
-# X Multi Workspace
+# 開発・技術情報
 
-<img src="build/icon.svg" alt="X Multi Workspace のアプリアイコン" width="96" height="96">
-
-[English](README.md) | 日本語
-
-複数のXアカウントを一つのWindowsウィンドウで手動管理するElectronアプリです。各管理枠は独立した永続Chromiumセッションを持ち、X公式サイトを表示します。X APIや外部サーバーは使用しません。
-
-[Windows用インストーラー・ポータブル版をダウンロード](https://github.com/devtk-core/x-multi-workspace/releases/latest)
-
-![X Multi Workspaceの4分割画面イメージ](docs/images/workspace-preview.png)
-
-*架空の管理枠と投稿を使った画面イメージです。実際のアプリ内にはX公式サイトが表示され、内容は利用者ごとに異なります。*
+[READMEに戻る](../README.md) | [English](TECHNICAL.md)
 
 ## 必要環境
 
@@ -80,3 +70,4 @@ Windows用のアプリアイコンは `build/icon.svg` のオリジナル図案�
 3. 単一・分割・タブを切り替えて閲覧中ページと投稿下書きが保持されることを確認する。
 4. 各管理枠から個別に投稿画面を開き、手動でテキスト貼り付けと画像・動画添付を確認する。
 5. 休止・復帰、セッション削除を確認する。
+
