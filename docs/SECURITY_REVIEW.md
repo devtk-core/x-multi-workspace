@@ -13,10 +13,10 @@ Status: review branch; not a public release. This review covers the source and b
 
 ## Checks and limits
 
-- Typecheck and 15 unit tests passed locally. The Windows installer and portable targets built successfully with the new fuses before the update-check UI was added; the final UI and main code passed a production build. The final Windows packaging reached NSIS but this sandbox could not start its helper executable. The Windows CI job will provide the release-target build result. An interactive UI check also remains pending. The earlier packaged app process started with an empty isolated profile. SHA-256 checksums are generated in CI.
-- A dummy-cookie Electron test was added for partition separation, restart persistence, and deletion. Its local run was blocked by the restricted GUI-process environment and could not be retried outside the sandbox after automatic approval review reached a usage limit. The Windows CI build job now runs it; the first result is pending.
+- Typecheck and 15 unit tests passed locally. The Windows installer and portable targets, typecheck, unit tests, dummy-session test, and SHA-256 generation passed in the PR's Windows CI build. The local Windows packaging reached NSIS but this sandbox could not start its helper executable. An interactive UI check remains pending. An earlier packaged app process started with an empty isolated profile.
+- The dummy-cookie Electron test passed in Windows CI for partition separation, restart persistence, and deletion. Its local run was blocked by the restricted GUI-process environment and could not be retried outside the sandbox after automatic approval review reached a usage limit.
 - The production management UI CSP no longer permits connections to the development server. Development mode adds its local Vite endpoints only while serving.
-- Dependabot, recurring dependency checks, and a full-history Gitleaks workflow are configured. Their first GitHub Actions run must be checked before calling them verified.
+- Dependabot and recurring dependency checks are configured. The PR's dependency audit and full-history Gitleaks jobs passed in GitHub Actions. Dependabot's scheduled runs have not yet occurred.
 - CodeQL upload is not configured while this is a private personal repository: GitHub's current code scanning eligibility lists public repositories and qualifying organization repositories. Reassess if repository visibility or plan changes.
 - X subframes remain under Chromium web security and sandboxing, because the official X page may embed third-party content. Main-frame navigation is restricted.
 - The existing WebRTC settings were retained. They avoided the firewall prompt in one user's v1.1.3 trial, but privacy and X Spaces behavior have not been validated across clean Windows systems.
@@ -25,3 +25,4 @@ Status: review branch; not a public release. This review covers the source and b
 - The experimental binaries built on this branch were moved to the ignored `work/issue-1-unreleased/` directory so they are not mistaken for the existing v1.1.3 release. The executables are unsigned; code signing remains a public-distribution decision.
 
 References: [Electron security checklist](https://www.electronjs.org/docs/latest/tutorial/security), [Electron navigation events](https://www.electronjs.org/docs/latest/api/web-contents), [Electron Fuses](https://www.electronjs.org/docs/latest/tutorial/fuses), [GitHub CodeQL eligibility](https://docs.github.com/en/code-security/concepts/code-scanning/codeql/codeql-code-scanning).
+
