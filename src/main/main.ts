@@ -5,6 +5,11 @@ import { join } from 'node:path';
 import { isUuid, languageFromLocale, normalizeSettings, partitionFor, safeXUrl, validateAccount, visibleIds, type Account, type Action, type Language, type Layout, type Rect, type Settings, type Snapshot, type ViewStatus } from '../shared/model';
 
 const dev = !app.isPackaged;
+// X can initialize WebRTC on normal pages. Chromium's mDNS responder can open
+// an inbound port and cause a Windows Firewall prompt on first launch.
+// Keep the IP policy restrictive before disabling mDNS IP masking globally.
+app.commandLine.appendSwitch('force-webrtc-ip-handling-policy', 'disable_non_proxied_udp');
+app.commandLine.appendSwitch('disable-features', 'WebRtcHideLocalIpsWithMdns');
 let win: BrowserWindow;
 let settings: Settings;
 let settingsPath: string;
