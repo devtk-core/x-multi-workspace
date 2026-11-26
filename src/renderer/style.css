@@ -6,3 +6,5 @@
 .update-button{background:#1e2c3f;border:1px solid #39516a;border-radius:7px;color:#d8e8f7;padding:7px 9px;font-size:11px;white-space:nowrap;flex:none}.update-button:hover{background:#2a415d}
 .update-notice{display:flex;align-items:center;gap:10px;min-height:38px;padding:6px 14px;background:#162b3f;border-bottom:1px solid #355677;color:#e4f1ff;font-size:12px}.update-notice span{flex:1}.update-notice button{background:#294365;border:1px solid #47729f;border-radius:6px;color:#e8f3ff;padding:5px 9px;font-size:11px}.update-notice .update-dismiss{background:transparent;border:0;font-size:18px;line-height:1}
 @media(max-width:900px){.update-button{padding:6px;font-size:10px}.update-notice{font-size:11px}}
+
+.brand-mark{width:34px;height:34px;flex:none;display:block}.empty-symbol img{width:72px;height:72px;display:block;margin:auto}

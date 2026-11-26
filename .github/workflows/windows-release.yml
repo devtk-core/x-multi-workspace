@@ -1,4 +1,4 @@
-name: Windows release
+name: Xnarabi Windows release
 
 on:
   push:
@@ -40,7 +40,7 @@ jobs:
       - name: Generate SHA-256 checksums
         shell: pwsh
         run: |
-          $files = @(Get-ChildItem outputs -Filter '*.exe' | Where-Object { $_.Name -match '^X-Multi-Workspace-(Portable|Setup)-' } | Sort-Object Name)
+          $files = @(Get-ChildItem outputs -Filter '*.exe' | Where-Object { $_.Name -match '^Xnarabi-(Portable|Setup)-' } | Sort-Object Name)
           if ($files.Count -ne 2) { throw "Expected two Windows executables, found $($files.Count)" }
           $lines = foreach ($file in $files) {
             $hash = (Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
@@ -51,10 +51,10 @@ jobs:
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: github.event_name != 'pull_request'
         with:
-          name: windows-release
+          name: xnarabi-windows
           path: |
-            outputs/X-Multi-Workspace-Portable-*.exe
-            outputs/X-Multi-Workspace-Setup-*.exe
+            outputs/Xnarabi-Portable-*.exe
+            outputs/Xnarabi-Setup-*.exe
             outputs/SHA256SUMS.txt
           if-no-files-found: error
           retention-days: 1
@@ -73,7 +73,7 @@ jobs:
           persist-credentials: false
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
-          name: windows-release
+          name: xnarabi-windows
           path: outputs
       - name: Publish GitHub release
         shell: pwsh
@@ -85,8 +85,8 @@ jobs:
           if ($tag -notmatch '^v[0-9]+\.[0-9]+\.[0-9]+$') { throw "Invalid release tag: $tag" }
           $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
           if ($tag -ne "v$version") { throw "Tag $tag does not match package version $version" }
-          $portable = "outputs/X-Multi-Workspace-Portable-$version-x64.exe"
-          $setup = "outputs/X-Multi-Workspace-Setup-$version-x64.exe"
+          $portable = "outputs/Xnarabi-Portable-$version-x64.exe"
+          $setup = "outputs/Xnarabi-Setup-$version-x64.exe"
           $assets = @($portable, $setup, 'outputs/SHA256SUMS.txt')
           foreach ($asset in $assets) { if (-not (Test-Path -LiteralPath $asset)) { throw "Missing asset: $asset" } }
           $checksums = @(Get-Content -LiteralPath 'outputs/SHA256SUMS.txt')
@@ -96,4 +96,4 @@ jobs:
             $expected = if ($line) { $line.Substring(0, 64) } else { $null }
             if (-not $expected -or (Get-FileHash -LiteralPath $asset -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) { throw "Checksum mismatch: $name" }
           }
-          gh release create $tag $assets --repo $env:GITHUB_REPOSITORY --title "X Multi Workspace $tag" --notes-file .github/RELEASE_NOTES.md --verify-tag
+          gh release create $tag $assets --repo $env:GITHUB_REPOSITORY --title "Xnarabi $tag" --notes-file .github/RELEASE_NOTES.md --verify-tag

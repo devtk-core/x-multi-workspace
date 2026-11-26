@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { LAYOUT_COUNTS, moveAccountId, swapAccountIds, visibleIds, type Account, type Action, type Language, type Layout, type Rect, type Snapshot } from '../shared/model';
 import { copy, errorText } from './i18n';
 import type { UpdateCheck } from '../shared/updates';
+import brandIcon from '../../build/icon.svg';
 import './style.css';
 
 const actionIcons: { id: Action; icon: string }[] = [
@@ -119,7 +120,7 @@ function App() {
   const columns = count === 1 ? 1 : count === 2 ? 2 : count === 4 ? 2 : count === 6 ? 3 : 5;
   return <div className="app">
     <aside className={`sidebar ${settings.sidebarCollapsed ? 'collapsed' : ''}`}>
-      <div className="brand"><span className="brand-mark">𝕏</span>{!settings.sidebarCollapsed && <span><strong>Multi Workspace</strong><small>ACCOUNT CONTROL</small></span>}<button className="icon-button collapse" title={settings.sidebarCollapsed ? t.expandSidebar : t.collapseSidebar} onClick={() => void call(() => window.workspace.collapseSidebar(!settings.sidebarCollapsed))}>{settings.sidebarCollapsed ? '»' : '«'}</button></div>
+      <div className="brand"><img className="brand-mark" src={brandIcon} alt="" />{!settings.sidebarCollapsed && <span><strong>Xnarabi</strong></span>}<button className="icon-button collapse" title={settings.sidebarCollapsed ? t.expandSidebar : t.collapseSidebar} onClick={() => void call(() => window.workspace.collapseSidebar(!settings.sidebarCollapsed))}>{settings.sidebarCollapsed ? '»' : '«'}</button></div>
       {!settings.sidebarCollapsed && <div className="sidebar-title"><span>{t.accounts} <em>{ordered.length}/10</em></span><button className="add-small" disabled={ordered.length>=10} title={t.addSlot} onClick={() => setEditing('new')}>＋</button></div>}
       <div className="account-list">{ordered.map((a,i) => <button key={a.id} className={`account-row ${settings.selectedId === a.id ? 'selected' : ''} ${dropHint?.id === a.id ? `drop-${dropHint.where}` : ''}`} draggable onDragStart={e => startDrag(e,a.id)} onDragEnd={endDrag} onDragOver={e => dragOver(e,a.id,'sidebar')} onDrop={e => void drop(e,a.id,'sidebar')} onClick={() => void select(a.id)} title={`${a.name} · Ctrl+${(i+1)%10} · ${t.dragToReorder}`}>
         <span className="avatar" style={{background:a.color}}>{a.name.slice(0,1).toUpperCase()}</span>
@@ -132,7 +133,7 @@ function App() {
       <header className="topbar"><div className="heading"><strong>{t.workspace}</strong><span>{ordered.length ? t.accountCount(ordered.length) : t.startByAdding}</span></div><div className="layouts">{(Object.keys(t.layouts) as Layout[]).map(l => <button key={l} className={settings.layout===l && !maximized ? 'active' : ''} onClick={() => void changeLayout(l)}>{t.layouts[l]}</button>)}</div><button className="update-button" title={t.checkUpdates} aria-label={t.checkUpdates} disabled={checkingUpdate} onClick={() => void checkUpdates()}>{checkingUpdate ? t.checkingUpdates : t.checkUpdates}</button><button className="language-toggle" title={t.languageSwitch} aria-label={t.languageSwitch} onClick={() => void call(() => window.workspace.language(language === 'ja' ? 'en' : 'ja'))}>{language === 'ja' ? 'EN' : '日本語'}</button>{maximized && <button className="restore" onClick={() => setMaximized(null)}>{t.restoreSplit}　Esc</button>}</header>
       {update && <div className="update-notice" role="status"><span>{update.status === 'available' ? t.updateAvailable(update.latestVersion!) : update.status === 'current' ? t.upToDate(update.currentVersion) : t.updateUnavailable}</span>{update.status !== 'current' && <button onClick={() => void call(() => window.workspace.openReleasePage())}>{t.openReleasePage}</button>}<button className="update-dismiss" aria-label={t.dismissUpdate} title={t.dismissUpdate} onClick={() => setUpdate(null)}>×</button></div>}
       {error && <div className="error" role="alert">{error}<button onClick={() => setError('')}>×</button></div>}
-      {ordered.length === 0 ? <div className="empty"><div className="empty-symbol">𝕏</div><h1>{t.emptyTitle}</h1><p>{t.emptyDescription}</p><button className="primary" onClick={() => setEditing('new')}>＋ {t.addSlot}</button></div> :
+      {ordered.length === 0 ? <div className="empty"><div className="empty-symbol"><img src={brandIcon} alt="" /></div><h1>{t.emptyTitle}</h1><p>{t.emptyDescription}</p><button className="primary" onClick={() => setEditing('new')}>＋ {t.addSlot}</button></div> :
       <div className={`grid count-${count}`} style={{gridTemplateColumns:`repeat(${columns}, minmax(0, 1fr))`}}>{ids.map(id => {
         const account = ordered.find(a => a.id===id)!;
         const isSuspended = snapshot.statuses[id]==='suspended';

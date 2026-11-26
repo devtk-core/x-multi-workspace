@@ -24,7 +24,7 @@ export const copy: Record<Language, Copy> = {
   ja: {
     layouts: {single:'1画面',two:'2分割',four:'4分割',six:'6分割',ten:'10分割',tabs:'タブ'},
     actions: {back:'戻る',forward:'進む',home:'ホーム',notifications:'通知',profile:'プロフィール',compose:'投稿',reload:'再読み込み',focus:'フォーカス'},
-    starting:'X Multi Workspace を起動しています…', collapseSidebar:'サイドバーを折りたたむ', expandSidebar:'サイドバーを開く', accounts:'アカウント',
+    starting:'Xnarabi を起動しています…', collapseSidebar:'サイドバーを折りたたむ', expandSidebar:'サイドバーを開く', accounts:'アカウント',
     addSlot:'管理枠を追加', idMissing:'ID未設定', visible:'表示中', suspended:'休止中', waiting:'待機中',
     shortcutSwitch:'Ctrl + 1～0 で切り替え', shortcutReload:'Ctrl + R で再読み込み', workspace:'ワークスペース', startByAdding:'管理枠を追加して開始',
     restoreSplit:'分割に戻る', emptyTitle:'アカウント管理枠を作成', emptyDescription:'管理枠ごとに独立したXのブラウザセッションを開きます。ログインはXの公式画面から行ってください。', maximize:'拡大表示',
@@ -47,7 +47,7 @@ export const copy: Record<Language, Copy> = {
   en: {
     layouts: {single:'Single',two:'2 panes',four:'4 panes',six:'6 panes',ten:'10 panes',tabs:'Tabs'},
     actions: {back:'Back',forward:'Forward',home:'Home',notifications:'Notifications',profile:'Profile',compose:'Compose',reload:'Reload',focus:'Focus'},
-    starting:'Starting X Multi Workspace…', collapseSidebar:'Collapse sidebar', expandSidebar:'Expand sidebar', accounts:'Accounts',
+    starting:'Starting Xnarabi…', collapseSidebar:'Collapse sidebar', expandSidebar:'Expand sidebar', accounts:'Accounts',
     addSlot:'Add workspace', idMissing:'No handle', visible:'Visible', suspended:'Suspended', waiting:'Idle',
     shortcutSwitch:'Ctrl + 1–0 to switch', shortcutReload:'Ctrl + R to reload', workspace:'Workspace', startByAdding:'Add a workspace to begin',
     restoreSplit:'Restore layout', emptyTitle:'Create an account workspace', emptyDescription:'Each workspace opens X in its own browser session. Sign in manually on the official X website.', maximize:'Maximize',

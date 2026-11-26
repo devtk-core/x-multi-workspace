@@ -10,7 +10,9 @@
 
 ## Update checks
 
-The app contacts GitHub's public Releases API only when you click Check for updates. It contains no GitHub authentication token. A private repository is not available through the unauthenticated API, so open GitHub Releases in your default browser and sign in to check manually. Neither the installer nor the portable app downloads or installs updates automatically.
+The app contacts the public Releases API for `devtk-core/xnarabi` only when you click Check for updates. It contains no GitHub authentication token and does not download or install updates automatically.
+
+After the repository rename, the v1.1.4 update checker may fail because it rejects redirects from the old API URL. Its button for opening GitHub Releases should follow the browser redirect, but this still needs checking on a user's PC. v1.2.0 contacts the new API URL directly. Users of older versions can open the [new Releases page](https://github.com/devtk-core/xnarabi/releases) manually.
 
 ## Development
 
@@ -31,7 +33,7 @@ npm run dist:win
 
 The build produces an NSIS installer and a portable executable in `outputs/`. They are unsigned; configure code signing before distributing them broadly.
 
-The Windows application icon is generated from the original vector artwork at `build/icon.svg`.
+The Windows icon is generated from the original vector artwork at `build/icon.svg`: three softly colored panes in a row. `build/icon.ico` and `build/icon.png` are derived from the same SVG for Windows and README use.
 
 Pushing a `vX.Y.Z` tag runs the Windows release workflow. It checks types and tests, builds both executables on a clean Windows runner, and attaches them with SHA-256 checksums to GitHub Releases.
 
@@ -47,8 +49,9 @@ Shortcuts: `Ctrl+1`–`Ctrl+9` select workspaces 1–9, `Ctrl+0` selects workspa
 
 ## Storage and memory
 
-- Settings, including language, layout, window position, and workspace details, are saved locally in Electron's `userData/settings.json`.
+- Settings are stored at `%APPDATA%/x-multi-workspace/settings.json`. To retain old settings and sessions, both Electron `userData` and `sessionData` stay pinned to this legacy directory despite the product and package name change.
 - Each workspace uses an Electron `persist:xmw-<UUID>` session. Electron manages its cookies and local storage. The app does not collect or save passwords or authentication tokens separately.
+- The NSIS installer retains `appId: local.xmultiworkspace.app`, from which electron-builder derives its upgrade GUID. Check an upgrade from v1.1.4 on Windows before release, including the installed-app list, shortcut, sessions, and icon.
 - Hidden views load only when first shown. Once loaded, they stay alive when switching layouts to preserve the current page and drafts. Reducing the pane count therefore does not immediately reduce memory usage.
 - In one eight-pane test, the entire app used about 1.4 GB. An X view may use roughly 100–200 MB, but this varies widely with content and video. The eight-pane total includes shared app processes and is not a fixed per-pane requirement.
 - Manually suspending a workspace closes its WebContents while retaining the session. Unsaved posts or form input may be lost, so the app asks before suspending. Resume opens the last saved X URL.
@@ -72,4 +75,5 @@ Shortcuts: `Ctrl+1`–`Ctrl+9` select workspaces 1–9, `Ctrl+0` selects workspa
 3. Switch among single, split, and tab layouts and confirm that current pages and drafts remain where possible.
 4. In each workspace, manually test posting, text paste, and image or video attachments.
 5. Test suspend, resume, and optional session deletion.
+6. Install the v1.2.0 candidate over v1.1.4 and check that it does not create a second installed app. Verify settings, sign-in state, and taskbar and window icons.
 

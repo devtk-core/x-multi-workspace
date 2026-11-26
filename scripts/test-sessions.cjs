@@ -1,5 +1,5 @@
 const { spawnSync } = require('node:child_process');
-const { mkdtempSync, realpathSync, rmSync } = require('node:fs');
+const { mkdirSync, mkdtempSync, realpathSync, rmSync } = require('node:fs');
 const { tmpdir } = require('node:os');
 const { dirname, join, relative } = require('node:path');
 
@@ -12,6 +12,7 @@ async function probe(phase, profile) {
   const { app, session } = require('electron');
   const { partitionFor } = require('../dist/main/shared/model.js');
   app.setPath('userData', profile);
+  app.setPath('sessionData', profile);
   try {
     await app.whenReady();
     const first = session.fromPartition(partitionFor(ids[0]));
@@ -42,7 +43,9 @@ if (process.versions.electron) {
   void probe(process.argv.at(-2), process.argv.at(-1));
 } else {
   const electronPath = require('electron');
-  const profile = mkdtempSync(join(tmpdir(), 'xmw-session-check-'));
+  const testRoot = mkdtempSync(join(tmpdir(), 'xmw-session-check-'));
+  const profile = join(testRoot, 'x-multi-workspace');
+  mkdirSync(profile);
   try {
     for (const phase of ['seed', 'verify']) {
       const env = { ...process.env };
@@ -53,7 +56,7 @@ if (process.versions.electron) {
     process.stdout.write('Dummy session isolation, restart, and deletion passed.\n');
   } finally {
     const root = realpathSync(tmpdir());
-    const target = realpathSync(profile);
+    const target = realpathSync(testRoot);
     const inside = relative(root, target);
     if (!inside || inside.startsWith('..') || dirname(target) !== root) throw new Error('Unsafe temporary test path');
     rmSync(target, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });
