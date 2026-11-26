@@ -1,15 +1,17 @@
 # Xnarabi v1.2.0
 
-旧名「X Multi Workspace」から「Xnarabi（エックスナラビ）」になりました。個人開発の無料Windowsアプリです。X公式サイトの画面を、最大10アカウント分ひとつのウィンドウに並べられます。XやX Corp.の公式製品ではありません。
+Xnarabi（エックスナラビ）の最初の一般向けリリースです。複数のXアカウントを並べて使いたくて作った、個人開発の無料Windowsアプリです。ひとつのウィンドウに最大10個のX公式画面を開けます。
 
-## 変更
+- 1・2・4・6・10画面の分割表示とタブ表示
+- 管理枠ごとに独立したログイン状態、名前、色、ズーム倍率
+- 管理枠の並べ替え、画面の入れ替え、一時的な拡大表示
+- 使わない画面の休止・復帰、日本語・英語のUI
+- アプリ内からの手動更新確認
 
-- アプリ名、ロゴ、Windowsアイコン、インストーラーとポータブル版のファイル名を変更しました。
-- リポジトリを `devtk-core/xnarabi` に改名し、アプリの更新確認と配布ページのURLを更新しました。
-- 旧版の設定とログインセッションを引き継ぐため、保存先と管理枠のセッション識別子、NSISのアプリ識別子は維持しました。
+[操作マニュアル](https://github.com/devtk-core/xnarabi/blob/main/docs/USER_MANUAL.ja.md)で、インストールや基本操作を確認できます。インストーラー版とポータブル版を用意しました。配布exeは未署名です。`SHA256SUMS.txt` でダウンロードしたファイルを照合できます。
 
-旧版v1.1.4では、リポジトリ改名後にアプリ内の更新確認が失敗します。このReleasesページから手動でダウンロードしてください。インストーラー版は旧版の上にインストールしてください。配布exeは未署名です。`SHA256SUMS.txt` でダウンロードしたファイルを照合できます。
+**Xnarabiは非公式アプリです。XおよびX Corp.との提携・承認関係はありません。**
 
 ---
 
-X Multi Workspace is now Xnarabi, a free, independently developed Windows app for placing up to 10 official X website views side by side. It is not affiliated with or endorsed by X or X Corp. The app name, icon, installer and portable filenames, and update links have changed. The legacy data directory, workspace session partitions, and NSIS app ID remain unchanged to preserve existing settings and sign-ins. The v1.1.4 update check fails after the repository rename; download this release manually. The executables are unsigned; verify them with `SHA256SUMS.txt`.
+Xnarabi's first general release is a free, independently developed Windows app for viewing up to 10 official X website screens side by side. It offers multiple layouts, separate sign-in sessions, workspace colors and zoom, drag reordering, suspend and resume, Japanese and English UI, and manual update checks. See the [English README](https://github.com/devtk-core/xnarabi/blob/main/README.en.md) for setup and usage. Installer and portable executables are available. They are unsigned; use `SHA256SUMS.txt` to verify downloaded files. Xnarabi is not affiliated with or endorsed by X or X Corp.
