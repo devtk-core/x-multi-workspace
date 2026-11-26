@@ -51,7 +51,7 @@ Shortcuts: `Ctrl+1`–`Ctrl+9` select workspaces 1–9, `Ctrl+0` selects workspa
 
 - Settings are stored at `%APPDATA%/x-multi-workspace/settings.json`. To retain old settings and sessions, both Electron `userData` and `sessionData` stay pinned to this legacy directory despite the product and package name change.
 - Each workspace uses an Electron `persist:xmw-<UUID>` session. Electron manages its cookies and local storage. The app does not collect or save passwords or authentication tokens separately.
-- The NSIS installer retains `appId: local.xmultiworkspace.app`, from which electron-builder derives its upgrade GUID. Check an upgrade from v1.1.4 on Windows before release, including the installed-app list, shortcut, sessions, and icon.
+- The NSIS installer retains `appId: local.xmultiworkspace.app`, from which electron-builder derives its upgrade GUID. In a Windows 11 upgrade test from v1.1.4 to the v1.2.0 candidate, the installed-app list had one entry, shortcuts pointed to Xnarabi, and all five workspaces and X sign-ins remained. The user also confirmed the new window and taskbar icons.
 - Hidden views load only when first shown. Once loaded, they stay alive when switching layouts to preserve the current page and drafts. Reducing the pane count therefore does not immediately reduce memory usage.
 - In one eight-pane test, the entire app used about 1.4 GB. An X view may use roughly 100–200 MB, but this varies widely with content and video. The eight-pane total includes shared app processes and is not a fixed per-pane requirement.
 - Manually suspending a workspace closes its WebContents while retaining the session. Unsaved posts or form input may be lost, so the app asks before suspending. Resume opens the last saved X URL.
