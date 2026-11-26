@@ -1,6 +1,6 @@
 # Security review for Issue #1
 
-Status: review branch; not a public release. This review covers the source and build configuration in this branch. It does not establish that the application is free of vulnerabilities.
+Status: merged into `main` through PR #2. The release remains subject to application acceptance testing. This review covers the source and build configuration at the time of that PR. It does not establish that the application is free of vulnerabilities.
 
 | Severity | Area | Condition and impact | Change or disposition | Verification |
 | --- | --- | --- | --- | --- |
@@ -21,8 +21,7 @@ Status: review branch; not a public release. This review covers the source and b
 - X subframes remain under Chromium web security and sandboxing, because the official X page may embed third-party content. Main-frame navigation is restricted.
 - The existing WebRTC settings were retained. They avoided the firewall prompt in one user's v1.1.3 trial, but privacy and X Spaces behavior have not been validated across clean Windows systems.
 - Actual X login, posting, attachments, clipboard, session migration, session deletion on disk, and clean-machine behavior require manual acceptance checks using dummy accounts. No production credentials were used for this review.
-- The unsigned v1.1.3 release was not replaced. A new release requires its own version, CI run, and acceptance test.
-- The experimental binaries built on this branch were moved to the ignored `work/issue-1-unreleased/` directory so they are not mistaken for the existing v1.1.3 release. The executables are unsigned; code signing remains a public-distribution decision.
+- At review time, the unsigned v1.1.3 release was not replaced. A new release requires its own version, CI run, and acceptance test.
+- Experimental binaries were kept in the ignored `work/issue-1-unreleased/` directory so they were not mistaken for the v1.1.3 release. The executables are unsigned; code signing remains a public-distribution decision.
 
 References: [Electron security checklist](https://www.electronjs.org/docs/latest/tutorial/security), [Electron navigation events](https://www.electronjs.org/docs/latest/api/web-contents), [Electron Fuses](https://www.electronjs.org/docs/latest/tutorial/fuses), [GitHub CodeQL eligibility](https://docs.github.com/en/code-security/concepts/code-scanning/codeql/codeql-code-scanning).
-
