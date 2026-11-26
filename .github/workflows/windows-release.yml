@@ -1,0 +1,62 @@
+name: Windows release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag (for retrying a release build)
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run dist:win -- --publish never
+
+      - name: Generate SHA-256 checksums
+        shell: pwsh
+        run: |
+          $files = @(Get-ChildItem outputs -Filter '*.exe' | Where-Object { $_.Name -match '^X-Multi-Workspace-(Portable|Setup)-' } | Sort-Object Name)
+          if ($files.Count -ne 2) { throw "Expected two Windows executables, found $($files.Count)" }
+          $lines = foreach ($file in $files) {
+            $hash = (Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+            "$hash  $($file.Name)"
+          }
+          $lines | Set-Content -LiteralPath outputs/SHA256SUMS.txt -Encoding ascii
+
+      - name: Publish GitHub release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+        run: |
+          $tag = $env:RELEASE_TAG
+          if ($tag -notmatch '^v[0-9]+\.[0-9]+\.[0-9]+$') { throw "Invalid release tag: $tag" }
+          $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          if ($tag -ne "v$version") { throw "Tag $tag does not match package version $version" }
+          $portable = "outputs/X-Multi-Workspace-Portable-$version-x64.exe"
+          $setup = "outputs/X-Multi-Workspace-Setup-$version-x64.exe"
+          $assets = @($portable, $setup, 'outputs/SHA256SUMS.txt')
+          foreach ($asset in $assets) { if (-not (Test-Path -LiteralPath $asset)) { throw "Missing asset: $asset" } }
+          gh release create $tag $assets --repo $env:GITHUB_REPOSITORY --title "X Multi Workspace $tag" --notes-file .github/RELEASE_NOTES.md --verify-tag

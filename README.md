@@ -50,6 +50,8 @@ The build produces an NSIS installer and a portable executable in `outputs/`. Th
 
 The Windows application icon is generated from the original vector artwork at `build/icon.svg`.
 
+Pushing a `vX.Y.Z` tag runs the Windows release workflow. It checks types and tests, builds both executables on a clean Windows runner, and attaches them with SHA-256 checksums to GitHub Releases.
+
 ## Getting started
 
 1. Add a workspace and set its name, optional X handle, color, and zoom.
