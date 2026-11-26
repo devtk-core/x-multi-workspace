@@ -1,0 +1,53 @@
+export type Layout = 'single' | 'two' | 'four' | 'six' | 'ten' | 'tabs';
+export type Account = { id: string; name: string; handle: string; color: string; order: number; zoom: number; lastUrl?: string };
+export type Settings = { accounts: Account[]; layout: Layout; selectedId: string | null; window: { x?: number; y?: number; width: number; height: number }; sidebarCollapsed: boolean };
+export type ViewStatus = 'unloaded' | 'visible' | 'hidden' | 'suspended';
+export type Snapshot = { settings: Settings; statuses: Record<string, ViewStatus> };
+export type Action = 'home' | 'notifications' | 'profile' | 'compose' | 'reload' | 'back' | 'forward' | 'focus';
+export type Rect = { x: number; y: number; width: number; height: number };
+export const LAYOUT_COUNTS: Record<Layout, number> = { single: 1, two: 2, four: 4, six: 6, ten: 10, tabs: 1 };
+export const DEFAULT_SETTINGS: Settings = { accounts: [], layout: 'single', selectedId: null, window: { width: 1440, height: 900 }, sidebarCollapsed: false };
+export const isUuid = (value: unknown): value is string => typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
+export const isColor = (value: unknown): value is string => typeof value === 'string' && /^#[0-9a-f]{6}$/i.test(value);
+export function partitionFor(id: string): string { if (!isUuid(id)) throw new Error('アカウントIDが不正です'); return `persist:xmw-${id}`; }
+export function validateAccount(input: unknown): Omit<Account, 'id' | 'order' | 'lastUrl'> {
+  if (!input || typeof input !== 'object') throw new Error('設定が不正です');
+  const a = input as Record<string, unknown>;
+  const name = typeof a.name === 'string' ? a.name.trim() : '';
+  const handle = typeof a.handle === 'string' ? a.handle.trim().replace(/^@/, '') : '';
+  if (!name || name.length > 60) throw new Error('表示名は1～60文字で入力してください');
+  if (handle && !/^[A-Za-z0-9_]{1,15}$/.test(handle)) throw new Error('ユーザーIDは英数字と_の15文字以内で入力してください');
+  if (!isColor(a.color)) throw new Error('識別色が不正です');
+  if (typeof a.zoom !== 'number' || !Number.isFinite(a.zoom) || a.zoom < 0.5 || a.zoom > 2) throw new Error('ズームは50～200%にしてください');
+  return { name, handle, color: a.color, zoom: Math.round(a.zoom * 10) / 10 };
+}
+export function normalizeSettings(input: unknown): Settings {
+  if (!input || typeof input !== 'object') return structuredClone(DEFAULT_SETTINGS);
+  const raw = input as Partial<Settings>;
+  const accounts: Account[] = [];
+  if (Array.isArray(raw.accounts)) for (const item of raw.accounts.slice(0, 10)) {
+    try {
+      if (!isUuid(item.id) || accounts.some(a => a.id === item.id)) continue;
+      const valid = validateAccount(item);
+      accounts.push({ ...valid, id: item.id, order: accounts.length, lastUrl: safeXUrl(item.lastUrl) ? item.lastUrl : undefined });
+    } catch { /* skip corrupt entry */ }
+  }
+  const layout: Layout = ['single','two','four','six','ten','tabs'].includes(raw.layout as string) ? raw.layout as Layout : 'single';
+  const w = raw.window;
+  const width = Number.isFinite(w?.width) ? Math.max(800, Math.min(4000, w!.width)) : 1440;
+  const height = Number.isFinite(w?.height) ? Math.max(560, Math.min(3000, w!.height)) : 900;
+  return { accounts, layout, selectedId: accounts.some(a => a.id === raw.selectedId) ? raw.selectedId! : accounts[0]?.id ?? null,
+    window: { width, height, ...(Number.isFinite(w?.x) && Number.isFinite(w?.y) ? { x: w!.x, y: w!.y } : {}) }, sidebarCollapsed: raw.sidebarCollapsed === true };
+}
+export function safeXUrl(value: unknown): boolean {
+  if (typeof value !== 'string') return false;
+  try { const u = new URL(value); return u.protocol === 'https:' && (u.hostname === 'x.com' || u.hostname === 'twitter.com' || u.hostname === 'mobile.twitter.com'); } catch { return false; }
+}
+export function visibleIds(settings: Settings): string[] {
+  const sorted = [...settings.accounts].sort((a,b) => a.order - b.order);
+  const selectedIndex = Math.max(0, sorted.findIndex(a => a.id === settings.selectedId));
+  const count = LAYOUT_COUNTS[settings.layout];
+  if (count === 1) return sorted[selectedIndex] ? [sorted[selectedIndex].id] : [];
+  const page = Math.floor(selectedIndex / count);
+  return sorted.slice(page * count, page * count + count).map(a => a.id);
+}
