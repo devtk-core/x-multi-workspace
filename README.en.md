@@ -32,10 +32,6 @@ I wanted to keep several X accounts side by side, so I made this free Windows ap
 
 Each workspace has separate browser storage, and valid X sessions can persist after restarting. The app uses neither the X API nor its own server, and it does not store passwords separately.
 
-Upgrading from the former name, “X Multi Workspace,” keeps settings, workspaces, and login sessions in the same data directory. The installer keeps the same internal app ID for upgrades.
-
-After the repository rename, the in-app update check in v1.1.4 cannot handle the old API URL's redirect. Open the download page above in your browser and update manually.
-
 **Memory:** Each loaded X screen uses memory much like a browser tab. In one eight-screen test, the whole app used about 1.4 GB. Usage varies with images, video, and browsing. Suspending a workspace can free memory, but unsent text in that view may be lost.
 
 For setup, builds, security details, and known limitations, see the [technical guide](docs/TECHNICAL.md).
