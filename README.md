@@ -40,6 +40,8 @@ npm run dist:win
 
 The build produces an NSIS installer and a portable executable in `outputs/`. They are unsigned; configure code signing before distributing them broadly.
 
+The Windows application icon is generated from the original vector artwork at `build/icon.svg`.
+
 ## Getting started
 
 1. Add a workspace and set its name, optional X handle, color, and zoom.
