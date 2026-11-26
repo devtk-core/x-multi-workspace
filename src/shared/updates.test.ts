@@ -20,4 +20,10 @@ describe('manual update check', () => {
     expect(updateFromRelease({ tag_name: 'bad' }, '1.1.3').status).toBe('unavailable');
     expect(updateFromRelease(null, '1.1.3').status).toBe('unavailable');
   });
+  it('offers the stable release to an installed release candidate', () => {
+    expect(updateFromRelease({ tag_name: 'v1.1.4' }, '1.1.4-rc.1'))
+      .toEqual({ status: 'available', currentVersion: '1.1.4-rc.1', latestVersion: '1.1.4' });
+    expect(updateFromRelease({ tag_name: 'v1.1.4' }, '1.1.5-rc.1').status).toBe('current');
+    expect(updateFromRelease({ tag_name: 'v1.1.4-rc.1' }, '1.1.3').status).toBe('unavailable');
+  });
 });
