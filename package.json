@@ -25,7 +25,7 @@
     "concurrently": "10.0.7",
     "electron": "45.5.0",
     "electron-builder": "26.18.0",
-    "typescript": "5.9.3",
+    "typescript": "7.0.2",
     "vite": "8.3.8",
     "vitest": "5.1.2",
     "wait-on": "9.5.1"
