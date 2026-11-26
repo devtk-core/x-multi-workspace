@@ -1,6 +1,6 @@
 {
   "name": "x-multi-workspace",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "Local multi-account X workspace for Windows",
   "main": "dist/main/main/main.js",
