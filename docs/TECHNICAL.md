@@ -8,6 +8,10 @@
 - Node.js 22 LTS or later and npm 10 or later for development
 - Internet access for installing dependencies and using X
 
+## Update checks
+
+The app contacts GitHub's public Releases API only when you click Check for updates. It contains no GitHub authentication token. A private repository is not available through the unauthenticated API, so open GitHub Releases in your default browser and sign in to check manually. Neither the installer nor the portable app downloads or installs updates automatically.
+
 ## Development
 
 ```powershell

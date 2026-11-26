@@ -4,3 +4,15 @@ outputs/
 work/
 .vite/
 *.tsbuildinfo
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p8
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.cer
+*.crt

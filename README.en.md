@@ -21,6 +21,7 @@ Open multiple X screens side by side in a Windows desktop app. Each workspace sh
 - Open Home, Notifications, Profile, or Compose in any workspace. Post and attach media manually in X.
 - Maximize a screen when you need room; suspend a workspace when you want to free memory.
 - Use the app in English or Japanese. X's own language follows your X settings.
+- Check for updates on demand. If a new release is available, open its GitHub download page.
 
 ## Start using it
 
@@ -28,7 +29,7 @@ Open multiple X screens side by side in a Windows desktop app. Each workspace sh
 2. Add a workspace and sign in through the X page it opens. Add more workspaces for other accounts.
 3. Choose a layout at the top of the window.
 
-Each workspace has separate browser storage, and valid X sessions can persist after restarting the app. X login and posts are always handled in the official website. The app uses neither the X API nor an external server.
+Each workspace has separate browser storage, and valid X sessions can persist after restarting the app. X login and posts are always handled in the official website. The app uses neither the X API nor its own server. It contacts GitHub only when you click Check for updates. While the repository is private, sign in to GitHub to view its releases.
 
 **Memory:** Each loaded X screen is a Chromium view, much like an open browser tab. In one eight-screen test, the whole app used about 1.4 GB; usage varies with images, video, and browsing. Suspending a workspace can free memory, but unsent text in that view may be lost.
 

@@ -1,8 +1,11 @@
-import { app, BrowserWindow, ipcMain, session, shell, WebContentsView, type Rectangle } from 'electron';
+import { app, BrowserWindow, ipcMain, net, session, shell, WebContentsView, type Rectangle } from 'electron';
 import { randomUUID } from 'node:crypto';
 import { readFileSync, writeFileSync, renameSync } from 'node:fs';
 import { join } from 'node:path';
-import { isUuid, languageFromLocale, normalizeSettings, partitionFor, safeXUrl, validateAccount, visibleIds, type Account, type Action, type Language, type Layout, type Rect, type Settings, type Snapshot, type ViewStatus } from '../shared/model';
+import { pathToFileURL } from 'node:url';
+import { isUuid, languageFromLocale, normalizeSettings, partitionFor, safeExternalUrl, safeXUrl, validateAccount, visibleIds, type Account, type Action, type Language, type Layout, type Rect, type Settings, type Snapshot, type ViewStatus } from '../shared/model';
+import { isTrustedUiUrl, xNavigationDecision } from './security';
+import { updateFromRelease, type UpdateCheck } from '../shared/updates';
 
 const dev = !app.isPackaged;
 // X can initialize WebRTC on normal pages. Chromium's mDNS responder can open
@@ -13,11 +16,36 @@ app.commandLine.appendSwitch('disable-features', 'WebRtcHideLocalIpsWithMdns');
 let win: BrowserWindow;
 let settings: Settings;
 let settingsPath: string;
+let trustedUiUrl: string;
 const views = new Map<string, WebContentsView>();
 const suspended = new Set<string>();
 const rects = new Map<string, Rectangle>();
 const allowedActions: Action[] = ['home','notifications','profile','compose','reload','back','forward','focus'];
+const RELEASE_API = 'https://api.github.com/repos/devtk-core/x-multi-workspace/releases/latest';
+const RELEASE_PAGE = 'https://github.com/devtk-core/x-multi-workspace/releases/latest';
 let saveTimer: NodeJS.Timeout | undefined;
+
+async function checkUpdates(): Promise<UpdateCheck> {
+  const currentVersion = app.getVersion();
+  try {
+    const response = await net.fetch(RELEASE_API, {
+      method: 'GET',
+      headers: { Accept: 'application/vnd.github+json' },
+      credentials: 'omit',
+      redirect: 'error',
+      cache: 'no-store',
+      signal: AbortSignal.timeout(8000)
+    });
+    if (!response.ok) return { status: 'unavailable', currentVersion };
+    const size = Number(response.headers.get('content-length'));
+    if (Number.isFinite(size) && size > 65536) return { status: 'unavailable', currentVersion };
+    const body = await response.text();
+    if (body.length > 65536) return { status: 'unavailable', currentVersion };
+    return updateFromRelease(JSON.parse(body) as unknown, currentVersion);
+  } catch {
+    return { status: 'unavailable', currentVersion };
+  }
+}
 
 function save() {
   clearTimeout(saveTimer);
@@ -47,7 +75,8 @@ function accountFor(id: unknown): Account {
   return account;
 }
 function guard(event: Electron.IpcMainEvent | Electron.IpcMainInvokeEvent) {
-  if (!win || event.sender !== win.webContents || event.senderFrame !== win.webContents.mainFrame) throw new Error('INVALID_SENDER');
+  if (!win || event.sender !== win.webContents || event.senderFrame !== win.webContents.mainFrame ||
+    !isTrustedUiUrl(event.senderFrame.url, trustedUiUrl)) throw new Error('INVALID_SENDER');
 }
 function cleanupView(id: string) {
   const view = views.get(id);
@@ -72,19 +101,23 @@ function createView(account: Account): WebContentsView {
   wc.setWebRTCIPHandlingPolicy('disable_non_proxied_udp');
   const ses = wc.session;
   ses.setPermissionRequestHandler((_wc, _permission, callback) => callback(false));
+  ses.setPermissionCheckHandler(() => false);
   wc.setWindowOpenHandler(({ url }) => {
     if (safeXUrl(url)) void wc.loadURL(url);
-    else if (url.startsWith('https://')) void shell.openExternal(url);
+    else if (safeExternalUrl(url)) void shell.openExternal(url);
     return { action: 'deny' };
   });
-  wc.on('will-navigate', (event, url) => {
-    if (!safeXUrl(url)) {
-      event.preventDefault();
-      if (url.startsWith('https://')) void shell.openExternal(url);
-    }
+  wc.on('will-frame-navigate', event => {
+    const decision = xNavigationDecision(event.url, event.isMainFrame, false);
+    if (decision === 'allow') return;
+    event.preventDefault();
+    if (decision === 'external') void shell.openExternal(event.url);
+  });
+  wc.on('will-redirect', event => {
+    if (xNavigationDecision(event.url, event.isMainFrame, true) !== 'allow') event.preventDefault();
   });
   wc.on('did-navigate', (_event, url) => { if (safeXUrl(url)) { account.lastUrl = url; save(); } });
-  wc.on('did-navigate-in-page', (_event, url) => { if (safeXUrl(url)) { account.lastUrl = url; save(); } });
+  wc.on('did-navigate-in-page', (_event, url, isMainFrame) => { if (isMainFrame && safeXUrl(url)) { account.lastUrl = url; save(); } });
   wc.on('before-input-event', (event, input) => handleShortcut(event, input));
   wc.on('render-process-gone', () => { cleanupView(account.id); suspended.add(account.id); broadcast(); });
   views.set(account.id, view);
@@ -143,6 +176,8 @@ async function runAction(id: string, action: Action) {
 }
 function installIpc() {
   ipcMain.handle('snapshot', e => { guard(e); return snapshot(); });
+  ipcMain.handle('updates:check', e => { guard(e); return checkUpdates(); });
+  ipcMain.handle('updates:open', async e => { guard(e); await shell.openExternal(RELEASE_PAGE); });
   ipcMain.handle('account:save', (e, input: unknown) => {
     guard(e);
     const valid = validateAccount(input);
@@ -202,14 +237,21 @@ function installIpc() {
   ipcMain.handle('resume', (e, id: unknown) => { guard(e); accountFor(id); suspended.delete(id as string); reconcile(); return snapshot(); });
 }
 function createWindow() {
+  trustedUiUrl = dev ? 'http://127.0.0.1:5173/' : pathToFileURL(join(__dirname, '../../renderer/index.html')).href;
   win = new BrowserWindow({ ...settings.window, minWidth: 800, minHeight: 560, title: 'X Multi Workspace', backgroundColor: '#0a0d14', autoHideMenuBar: true,
     webPreferences: { preload: join(__dirname, '../preload/preload.js'), nodeIntegration: false, contextIsolation: true, sandbox: true, webSecurity: true } });
   win.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
+  win.webContents.on('will-frame-navigate', event => {
+    if (event.isMainFrame && !isTrustedUiUrl(event.url, trustedUiUrl)) event.preventDefault();
+  });
+  win.webContents.on('will-redirect', event => {
+    if (event.isMainFrame && !isTrustedUiUrl(event.url, trustedUiUrl)) event.preventDefault();
+  });
   win.webContents.on('before-input-event', (e, input) => handleShortcut(e, input));
   const saveBounds = () => { if (win.isMinimized()) return; settings.window = win.getBounds(); save(); };
   win.on('resize', saveBounds); win.on('move', saveBounds);
   win.on('closed', () => { for (const id of [...views.keys()]) cleanupView(id); saveNow(); });
-  if (dev) void win.loadURL('http://127.0.0.1:5173'); else void win.loadFile(join(__dirname, '../../renderer/index.html'));
+  if (dev) void win.loadURL(trustedUiUrl); else void win.loadFile(join(__dirname, '../../renderer/index.html'));
 }
 app.whenReady().then(() => {
   settingsPath = join(app.getPath('userData'), 'settings.json');
