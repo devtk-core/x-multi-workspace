@@ -32,7 +32,7 @@ I wanted to keep several X accounts side by side, so I made this free Windows ap
 
 Each workspace has separate browser storage, and valid X sessions can persist after restarting. The app uses neither the X API nor its own server, and it does not store passwords separately.
 
-Upgrading from the former name, “X Multi Workspace,” keeps settings, workspaces, and login sessions in the same data directory. The installer keeps the same internal app ID for upgrades. **Until v1.2.0 is published, the latest download at the link above is still v1.1.4 under the old name.**
+Upgrading from the former name, “X Multi Workspace,” keeps settings, workspaces, and login sessions in the same data directory. The installer keeps the same internal app ID for upgrades.
 
 After the repository rename, the in-app update check in v1.1.4 cannot handle the old API URL's redirect. Open the download page above in your browser and update manually.
 
