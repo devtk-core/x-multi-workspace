@@ -10,6 +10,8 @@
 
 [インストーラー・ポータブル版をダウンロード](https://github.com/devtk-core/xnarabi/releases/latest) · Windows 11 x64
 
+[操作マニュアル（でんのうてっく）](https://www.dennou.tech/software/xnarabi/manual/)
+
 ![Xnarabiの4分割画面イメージ](docs/images/workspace-preview.png)
 
 *架空のアカウントと投稿を使った画面イメージです。実際にはX公式サイトが表示されます。*
