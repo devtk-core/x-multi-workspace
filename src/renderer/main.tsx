@@ -1,13 +1,13 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { LAYOUT_COUNTS, visibleIds, type Account, type Action, type Language, type Layout, type Rect, type Snapshot } from '../shared/model';
+import { LAYOUT_COUNTS, moveAccountId, swapAccountIds, visibleIds, type Account, type Action, type Language, type Layout, type Rect, type Snapshot } from '../shared/model';
 import { copy, errorText } from './i18n';
 import type { UpdateCheck } from '../shared/updates';
 import './style.css';
 
 const actionIcons: { id: Action; icon: string }[] = [
   { id: 'back', icon: '←' }, { id: 'forward', icon: '→' }, { id: 'home', icon: '⌂' },
-  { id: 'notifications', icon: '♢' }, { id: 'profile', icon: '◎' },
+  { id: 'notifications', icon: '♢' }, { id: 'profile', icon: '' },
   { id: 'compose', icon: '✎' }, { id: 'reload', icon: '⟳' }
 ];
 const colors = ['#33c2a5','#4e9af1','#b78cf6','#f3a35c','#ef6f86','#d6c65e','#5bc6e8','#e483c3','#a2ca72','#f08365'];
@@ -18,6 +18,8 @@ function App() {
   const [maximized, setMaximized] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [dropHint, setDropHint] = useState<{ id: string; where: 'before' | 'after' | 'swap' } | null>(null);
+  const draggedId = useRef<string | null>(null);
   const [update, setUpdate] = useState<UpdateCheck | null>(null);
   const [checkingUpdate, setCheckingUpdate] = useState(false);
   const bodyRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -72,6 +74,29 @@ function App() {
     [order[i], order[j]] = [order[j], order[i]];
     await call(() => window.workspace.reorder(order));
   }
+  function startDrag(event: React.DragEvent, id: string) {
+    if (event.currentTarget.classList.contains('tile-header') && (event.target as HTMLElement).closest('button')) { event.preventDefault(); return; }
+    draggedId.current = id;
+    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('application/x-xmw-account', id);
+  }
+  function endDrag() { draggedId.current = null; setDropHint(null); }
+  function dragOver(event: React.DragEvent, id: string, where: 'sidebar' | 'tile') {
+    if (!draggedId.current || draggedId.current === id) return;
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+    const side = where === 'tile' ? 'swap' : event.clientY < event.currentTarget.getBoundingClientRect().top + event.currentTarget.getBoundingClientRect().height / 2 ? 'before' : 'after';
+    if (dropHint?.id !== id || dropHint.where !== side) setDropHint({ id, where: side });
+  }
+  async function drop(event: React.DragEvent, id: string, where: 'sidebar' | 'tile') {
+    event.preventDefault();
+    const source = draggedId.current;
+    endDrag();
+    if (!source || !settings || source === id) return;
+    const order = [...settings.accounts].sort((a,b) => a.order-b.order).map(a => a.id);
+    const next = where === 'tile' ? swapAccountIds(order, source, id) : moveAccountId(order, source, id, event.clientY >= event.currentTarget.getBoundingClientRect().top + event.currentTarget.getBoundingClientRect().height / 2);
+    if (next !== order) await call(() => window.workspace.reorder(next));
+  }
   async function deleteAccount(account: Account) {
     if (!confirm(t.deleteSlot(account.name))) return;
     const clear = confirm(t.clearSession);
@@ -96,7 +121,7 @@ function App() {
     <aside className={`sidebar ${settings.sidebarCollapsed ? 'collapsed' : ''}`}>
       <div className="brand"><span className="brand-mark">𝕏</span>{!settings.sidebarCollapsed && <span><strong>Multi Workspace</strong><small>ACCOUNT CONTROL</small></span>}<button className="icon-button collapse" title={settings.sidebarCollapsed ? t.expandSidebar : t.collapseSidebar} onClick={() => void call(() => window.workspace.collapseSidebar(!settings.sidebarCollapsed))}>{settings.sidebarCollapsed ? '»' : '«'}</button></div>
       {!settings.sidebarCollapsed && <div className="sidebar-title"><span>{t.accounts} <em>{ordered.length}/10</em></span><button className="add-small" disabled={ordered.length>=10} title={t.addSlot} onClick={() => setEditing('new')}>＋</button></div>}
-      <div className="account-list">{ordered.map((a,i) => <button key={a.id} className={`account-row ${settings.selectedId === a.id ? 'selected' : ''}`} onClick={() => void select(a.id)} title={`${a.name} · Ctrl+${(i+1)%10}`}>
+      <div className="account-list">{ordered.map((a,i) => <button key={a.id} className={`account-row ${settings.selectedId === a.id ? 'selected' : ''} ${dropHint?.id === a.id ? `drop-${dropHint.where}` : ''}`} draggable onDragStart={e => startDrag(e,a.id)} onDragEnd={endDrag} onDragOver={e => dragOver(e,a.id,'sidebar')} onDrop={e => void drop(e,a.id,'sidebar')} onClick={() => void select(a.id)} title={`${a.name} · Ctrl+${(i+1)%10} · ${t.dragToReorder}`}>
         <span className="avatar" style={{background:a.color}}>{a.name.slice(0,1).toUpperCase()}</span>
         {!settings.sidebarCollapsed && <span className="account-text"><strong>{a.name}</strong><small>{a.handle ? '@'+a.handle : t.idMissing} <span className={`status ${snapshot.statuses[a.id]}`}>● {snapshot.statuses[a.id] === 'visible' ? t.visible : snapshot.statuses[a.id] === 'suspended' ? t.suspended : t.waiting}</span></small></span>}
       </button>)}</div>
@@ -112,7 +137,7 @@ function App() {
         const account = ordered.find(a => a.id===id)!;
         const isSuspended = snapshot.statuses[id]==='suspended';
         return <section className={`tile ${settings.selectedId===id?'focused':''}`} key={id} style={{'--accent':account.color} as React.CSSProperties} onMouseDown={() => { if (settings.selectedId!==id) void window.workspace.select(id); }}>
-          <div className="tile-header"><div className="tile-identity"><span className="tile-dot" style={{background:account.color}}/><strong>{account.name}</strong><small>{account.handle ? '@'+account.handle : ''}</small></div><div className="tile-actions">{actionIcons.map(a => <button key={a.id} title={t.actions[a.id]} aria-label={`${account.name}: ${t.actions[a.id]}`} disabled={isSuspended} onClick={() => void call(() => window.workspace.action(id,a.id))}>{a.icon}</button>)}<button title={maximized ? t.restoreSplit : t.maximize} aria-label={maximized ? t.restoreSplit : t.maximize} onClick={() => setMaximized(maximized ? null : id)}>{maximized ? '▣' : '⛶'}</button><button className="more" title={t.settings} aria-label={t.settings} onClick={() => setEditing(account)}>⋯</button></div></div>
+          <div className={`tile-header ${dropHint?.id === id && dropHint.where === 'swap' ? 'drop-swap' : ''}`} draggable onDragStart={e => startDrag(e,id)} onDragEnd={endDrag} onDragOver={e => dragOver(e,id,'tile')} onDrop={e => void drop(e,id,'tile')} title={t.dragToSwap}><div className="tile-identity"><span className="tile-dot" style={{background:account.color}}/><strong>{account.name}</strong><small>{account.handle ? '@'+account.handle : ''}</small></div><div className="tile-actions">{actionIcons.map(a => <button key={a.id} className={a.id === 'profile' ? 'profile-action' : undefined} title={t.actions[a.id]} aria-label={`${account.name}: ${t.actions[a.id]}`} disabled={isSuspended} onClick={() => void call(() => window.workspace.action(id,a.id))}>{a.id === 'profile' ? <><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="7.5" r="3.5"/><path d="M4.5 20v-1.5a7.5 7.5 0 0 1 15 0V20z"/></svg><span className="profile-label">{t.actions.profile}</span></> : a.icon}</button>)}<button title={maximized ? t.restoreSplit : t.maximize} aria-label={maximized ? t.restoreSplit : t.maximize} onClick={() => setMaximized(maximized ? null : id)}>{maximized ? '▣' : '⛶'}</button><button className="more" title={t.settings} aria-label={t.settings} onClick={() => setEditing(account)}>⋯</button></div></div>
           <div className="browser-area" ref={el => {bodyRefs.current[id]=el;}}>{isSuspended && <div className="suspended-message"><span>◌</span><strong>{t.suspendedTitle}</strong><p>{t.sessionRetained}</p><button className="primary" onClick={() => void call(() => window.workspace.resume(id))}>{t.resume}</button></div>}</div>
         </section>;
       })}</div>}

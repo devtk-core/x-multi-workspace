@@ -212,7 +212,7 @@ function installIpc() {
   ipcMain.handle('account:reorder', (e, ids: unknown) => {
     guard(e);
     if (!Array.isArray(ids) || ids.length !== settings.accounts.length || ids.some(id => !isUuid(id)) || new Set(ids).size !== ids.length || ids.some(id => !settings.accounts.some(a => a.id === id))) throw new Error('INVALID_ORDER');
-    settings.accounts.forEach(a => a.order = ids.indexOf(a.id)); save(); reconcile(); return snapshot();
+    settings.accounts = ids.map((id, order) => ({ ...accountFor(id), order })); save(); reconcile(); return snapshot();
   });
   ipcMain.handle('select', (e, id: unknown) => { guard(e); accountFor(id); settings.selectedId = id as string; save(); reconcile(); return snapshot(); });
   ipcMain.handle('layout', (e, layout: unknown) => { guard(e); if (!['single','two','four','six','ten','tabs'].includes(layout as string)) throw new Error('INVALID_LAYOUT'); settings.layout = layout as Layout; save(); reconcile(); return snapshot(); });

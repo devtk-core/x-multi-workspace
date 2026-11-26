@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { languageFromLocale, normalizeSettings, partitionFor, safeExternalUrl, safeXUrl, validateAccount, visibleIds, type Settings } from './model';
+import { languageFromLocale, moveAccountId, normalizeSettings, partitionFor, safeExternalUrl, safeXUrl, swapAccountIds, validateAccount, visibleIds, type Settings } from './model';
 const ids = Array.from({length:10},(_,i)=>`00000000-0000-4000-8000-${String(i).padStart(12,'0')}`);
 const settings:Settings = {accounts:ids.map((id,order)=>({id,order,name:`Account ${order}`,handle:`user_${order}`,color:'#33c2a5',zoom:1})),layout:'four',language:'ja',selectedId:ids[5],sidebarCollapsed:false,window:{width:1440,height:900}};
 describe('account model',()=>{
@@ -46,6 +46,16 @@ describe('account model',()=>{
     expect(visibleIds(settings)).toEqual(ids.slice(4,8));
     expect(visibleIds({...settings,layout:'single'})).toEqual([ids[5]]);
     expect(visibleIds({...settings,layout:'ten'})).toEqual(ids);
+  });
+  it('moves sidebar items, swaps visible screens, and restores their order after restart',()=>{
+    const moved = moveAccountId(ids.slice(0,5), ids[0], ids[3], true);
+    expect(moved).toEqual([ids[1],ids[2],ids[3],ids[0],ids[4]]);
+    const swapped = swapAccountIds(moved, ids[1], ids[4]);
+    expect(swapped).toEqual([ids[4],ids[2],ids[3],ids[0],ids[1]]);
+    const saved = { ...settings, accounts: swapped.map((id, order) => ({ ...settings.accounts.find(a=>a.id===id)!, order })) };
+    expect(normalizeSettings(saved).accounts.map(a=>a.id)).toEqual(swapped);
+    const oldFormat = { ...settings, accounts: saved.accounts.slice().reverse() };
+    expect(normalizeSettings(oldFormat).accounts.map(a=>a.id)).toEqual(swapped);
   });
   it('uses the system locale for new or older settings and keeps a chosen language',()=>{
     expect(languageFromLocale('ja-JP')).toBe('ja');

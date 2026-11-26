@@ -14,6 +14,7 @@ type Copy = {
   memoryNote: string; delete: string; cancel: string; save: string; saving: string;
   deleteSlot: (name: string) => string; clearSession: string; suspendSlot: (name: string) => string;
   accountCount: (count: number) => string; languageSwitch: string; genericError: string;
+  dragToReorder: string; dragToSwap: string;
   checkUpdates: string; checkingUpdates: string; updateAvailable: (version: string) => string;
   upToDate: (version: string) => string; updateUnavailable: string; openReleasePage: string; dismissUpdate: string;
   errors: Record<string, string>;
@@ -35,7 +36,7 @@ export const copy: Record<Language, Copy> = {
     deleteSlot:name=>`「${name}」を管理枠から削除しますか？`,
     clearSession:'この管理枠のCookie・ローカルストレージなどのセッションデータも削除しますか？\n「キャンセル」を選ぶとデータを残して管理枠だけ削除します。',
     suspendSlot:name=>`「${name}」を休止しますか？編集中の投稿は失われる場合があります。`,
-    accountCount:count=>`${count} アカウント`, languageSwitch:'Englishに切り替え', genericError:'操作に失敗しました。もう一度お試しください。',
+    accountCount:count=>`${count} アカウント`, languageSwitch:'Englishに切り替え', genericError:'操作に失敗しました。もう一度お試しください。', dragToReorder:'ドラッグして並べ替え', dragToSwap:'ここをドラッグして画面を入れ替え',
     checkUpdates:'更新を確認', checkingUpdates:'確認中…',
     updateAvailable:version=>`新しいバージョン ${version} を利用できます。`,
     upToDate:version=>`最新版です（${version}）。`,
@@ -58,7 +59,7 @@ export const copy: Record<Language, Copy> = {
     deleteSlot:name=>`Remove “${name}” from the app?`,
     clearSession:'Also delete this workspace’s cookies and local storage?\nChoose Cancel to remove only the workspace and keep its session data.',
     suspendSlot:name=>`Suspend “${name}”? Any post you are editing may be lost.`,
-    accountCount:count=>`${count} ${count===1?'account':'accounts'}`, languageSwitch:'Switch to Japanese', genericError:'The action failed. Please try again.',
+    accountCount:count=>`${count} ${count===1?'account':'accounts'}`, languageSwitch:'Switch to Japanese', genericError:'The action failed. Please try again.', dragToReorder:'Drag to reorder', dragToSwap:'Drag here to swap screens',
     checkUpdates:'Check for updates', checkingUpdates:'Checking…',
     updateAvailable:version=>`Version ${version} is available.`,
     upToDate:version=>`You're up to date (${version}).`,

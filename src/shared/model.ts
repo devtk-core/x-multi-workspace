@@ -31,9 +31,10 @@ export function normalizeSettings(input: unknown, fallbackLanguage: Language = '
     try {
       if (!isUuid(item.id) || accounts.some(a => a.id === item.id)) continue;
       const valid = validateAccount(item);
-      accounts.push({ ...valid, id: item.id, order: accounts.length, lastUrl: safeXUrl(item.lastUrl) ? item.lastUrl : undefined });
+      accounts.push({ ...valid, id: item.id, order: Number.isInteger(item.order) && item.order >= 0 && item.order < 10 ? item.order : accounts.length, lastUrl: safeXUrl(item.lastUrl) ? item.lastUrl : undefined });
     } catch { /* skip corrupt entry */ }
   }
+  accounts.sort((a, b) => a.order - b.order).forEach((account, index) => { account.order = index; });
   const layout: Layout = ['single','two','four','six','ten','tabs'].includes(raw.layout as string) ? raw.layout as Layout : 'single';
   const w = raw.window;
   const width = Number.isFinite(w?.width) ? Math.max(800, Math.min(4000, w!.width)) : 1440;
@@ -41,6 +42,19 @@ export function normalizeSettings(input: unknown, fallbackLanguage: Language = '
   const language: Language = raw.language === 'ja' || raw.language === 'en' ? raw.language : fallbackLanguage;
   return { accounts, layout, language, selectedId: accounts.some(a => a.id === raw.selectedId) ? raw.selectedId! : accounts[0]?.id ?? null,
     window: { width, height, ...(Number.isFinite(w?.x) && Number.isFinite(w?.y) ? { x: w!.x, y: w!.y } : {}) }, sidebarCollapsed: raw.sidebarCollapsed === true };
+}
+export function moveAccountId(ids: string[], source: string, target: string, after: boolean): string[] {
+  if (source === target || !ids.includes(source) || !ids.includes(target)) return ids;
+  const result = ids.filter(id => id !== source);
+  result.splice(result.indexOf(target) + Number(after), 0, source);
+  return result;
+}
+export function swapAccountIds(ids: string[], source: string, target: string): string[] {
+  const result = [...ids];
+  const from = result.indexOf(source), to = result.indexOf(target);
+  if (from < 0 || to < 0 || from === to) return ids;
+  [result[from], result[to]] = [result[to], result[from]];
+  return result;
 }
 export function safeXUrl(value: unknown): boolean {
   if (typeof value !== 'string') return false;
