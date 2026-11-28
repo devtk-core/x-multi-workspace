@@ -10,7 +10,7 @@ I wanted to keep several X accounts side by side, so I made this free Windows ap
 
 [Download the installer or portable app](https://github.com/devtk-core/xnarabi/releases/latest) · Windows 11 x64
 
-[User manual in Japanese (Dennou Tech)](https://www.dennou.tech/software/xnarabi/manual/)
+[English user manual](docs/USER_MANUAL.en.md) · [Japanese manual (Dennou Tech)](https://www.dennou.tech/software/xnarabi/manual/)
 
 ![Illustrative four-pane preview of Xnarabi](docs/images/workspace-preview.png)
 
@@ -38,6 +38,6 @@ Each workspace has separate browser storage, and valid X sessions can persist af
 
 For setup, builds, security details, and known limitations, see the [technical guide](docs/TECHNICAL.md).
 
-The [Japanese user manual](docs/USER_MANUAL.ja.md) covers installation, controls, updates, and troubleshooting.
+The [English user manual](docs/USER_MANUAL.en.md) and [Japanese user manual](docs/USER_MANUAL.ja.md) cover installation, controls, updates, and troubleshooting.
 
 OpenAI Codex is used in the development of this app.
